@@ -9,4 +9,5 @@ export const myTheme:DefaultTheme = {
     lighter: "#fff",
     darker: "#efefef",
   },
+  blue: "#4692ff",
 };

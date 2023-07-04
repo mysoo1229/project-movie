@@ -33,10 +33,10 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     line-height: 1;
-    background-color: ${props => props.theme.black.veryDark};
+    background-color: ${props => props.theme.black.darker};
   }
   body * {
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: ${props => props.theme.white.darker};
   }
   menu, ol, ul {
@@ -57,6 +57,11 @@ const GlobalStyle = createGlobalStyle`
   a {
     text-decoration: none;
     color: inherit;
+  }
+  button {
+    background: none;
+    border: none;
+    outline: none;
   }
 `;
 
