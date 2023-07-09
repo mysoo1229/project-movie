@@ -3,22 +3,37 @@ import styled from "styled-components";
 
 const HeaderWrap = styled.div`
   display: flex;
-  padding: 16px 20px;
+  margin-bottom: 20px;
+  padding: 16px 24px;
   align-items: center;
 `;
 
 const Logo = styled.div`
+  margin-bottom: 8px;
   font-size: 24px;
   font-weight: bold;
   color: ${props => props.theme.blue};
 `;
 
 const LinkWrap = styled.div`
+  display: flex;
   margin-left: 30px;
 
   a {
-    margin-right: 16px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin-right: 20px;
     font-size: 15px;
+  }
+
+  i {
+    display: inline-block;
+    width: 16px;
+    height: 2px;
+    margin-top: 6px;
+    border-radius: 2px;
+    background-color: ${props => props.theme.blue};
   }
 `;
 
@@ -50,8 +65,13 @@ function Header() {
         Cetflix
       </Logo>
       <LinkWrap>
-        <a>TV Shows</a>
-        <a>Movies</a>
+        <a>
+          <span>TV Shows</span>
+          <i></i>
+        </a>
+        <a>
+          <span>Movies</span>
+        </a>
       </LinkWrap>
       <SearchWrap>
         <SearchForm>
