@@ -1,6 +1,9 @@
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Header from "./Components/Header";
 import styled from "styled-components";
 import Movies from "./Routes/Movies";
+import Tv from './Routes/TV';
+import Search from './Routes/Search';
 
 const Container = styled.div`
   max-width: 1024px;
@@ -14,10 +17,22 @@ const Contents = styled.div`
 function App() {
   return (
     <Container>
-      <Header />
-      <Contents>
-        <Movies />
-      </Contents>
+      <Router>
+        <Header />
+        <Contents>
+          <Switch>
+            <Route path="/tv">
+              <Tv />
+            </Route>
+            <Route path="/search">
+              <Search />
+            </Route>
+            <Route path="/">
+              <Movies />
+            </Route>
+          </Switch>
+        </Contents>
+      </Router>
     </Container>
   );
 }
