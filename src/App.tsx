@@ -6,12 +6,15 @@ import Tv from './Routes/TV';
 import Search from './Routes/Search';
 
 const Container = styled.div`
-  max-width: 1024px;
+  max-width: 1280px;
   margin: 0 auto;
+  padding-bottom: 60px;
 `;
 
 const Contents = styled.div`
-  padding: 0 24px;
+  @media screen and (max-width: 1328px) {
+    padding: 0 24px;
+  }
 `;
 
 function App() {

@@ -10,6 +10,7 @@ const MainVisual = styled.div`
   border-radius: 16px;
   overflow: hidden;
   background-size: cover;
+  background-position: center;
 
   &::before {
     content: "";
@@ -38,7 +39,7 @@ const VisualDescription = styled.div`
   height: 66px;
   margin-top: 16px;
   overflow: hidden;
-  word-break: break-all;
+  word-break: break-word;
   text-overflow: ellipsis;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -75,12 +76,13 @@ const SectionSlider = styled.div`
 
 const SectionList = styled.ul`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
   margin-top: 16px;
 `;
 
 const SectionItem = styled.li`
+  position: relative;
   overflow: hidden;
 `;
 
@@ -97,6 +99,26 @@ const ItemImage = styled.div`
     height: 100%;
     inset: 0;
     object-fit: cover;
+  }
+`;
+
+const ItemInfo = styled.div`
+  display: none;
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: #222;
+  text-align: center;
+
+  h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    word-break: break-word;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-size: 15px;
+    line-height: 25px;
+    font-weight: bold;
   }
 `;
 
@@ -125,7 +147,7 @@ const ButtonSlider = styled.button`
 `;
 
 const ButtonPrev = styled(ButtonSlider)`
-  left: -50px;
+  left: -54px;
 
   &::after {
     left: 12px;
@@ -135,7 +157,7 @@ const ButtonPrev = styled(ButtonSlider)`
 `;
 
 const ButtonNext = styled(ButtonSlider)`
-  right: -50px;
+  right: -54px;
 
   &::after {
     left: 4px;
@@ -144,19 +166,24 @@ const ButtonNext = styled(ButtonSlider)`
   }
 `;
 
-const ModalWrap = styled.div`
-  display: none;
+const ModalBg = styled.div`
   z-index: 99;
+  display: flex;
+  display: none;
+  justify-content: center;
+  align-items: center;
   position: fixed;
-  top: 15vh;
-  right: 0;
-  left: 0;
+  inset: 0;
+  background: rgba(0, 0, 0, .8);
+`;
+
+const ModalWrap = styled.div`
+  position: relative;
   width: 600px;
   height: 70vh;
   margin: 0 auto;
   background: #222;
   border-radius: 16px;
-  box-shadow: 0 0 10px 10px rgba(0, 0, 0, .2);
   overflow-y: auto;
 
   &::-webkit-scrollbar {
@@ -315,11 +342,14 @@ function Movies() {
         <SectionTitle>Now Playing</SectionTitle>
         <SectionSlider>
           <SectionList>
-            {["1", "2", "3", "4", "5"].map((item) => (
+            {["1", "2", "3", "4", "5", "6"].map((item) => (
               <SectionItem key={item}>
                 <ItemImage>
                   <img src="https://m.media-amazon.com/images/M/MV5BZjYxYWVjMDMtZGRjZS00ZDE4LTk0OWUtMjUyOTI4MmYxNjgwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_SL1024_.jpg" alt="" />
                 </ItemImage>
+                <ItemInfo>
+                  <h3>Elemental</h3>
+                </ItemInfo>
               </SectionItem>
             ))}
           </SectionList>
@@ -328,34 +358,36 @@ function Movies() {
         </SectionSlider>
       </Section>
 
-      <ModalWrap>
-        <ModalCloseButton />
-        <ModalImage>
-          <img src="https://assets.website-files.com/6024f92b17cc648cdd48d5de/6440ea081c857f6a97c00484_Elemental%20pixar%20animation%20in%20Cannes%20for%20MIME.jpg" alt="" />
-        </ModalImage>
-        <ModalText>
-          <ModalSummary>
-            <SummaryTitle>Elemental</SummaryTitle>
-            <SummaryInfo>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero?</SummaryInfo>
-          </ModalSummary>
-          <ModalDetail>
-            <DetailRating>
-              <i>
-                <strong style={{width: '70%'}}></strong>
-              </i>
-              <span>(3.5)</span>
-            </DetailRating>
-            <DetailInfo>
-              <strong>Cast</strong>
-              <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-            </DetailInfo>
-            <DetailInfo>
-              <strong>Genre</strong>
-              <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-            </DetailInfo>
-          </ModalDetail>
-        </ModalText>
-      </ModalWrap>
+      <ModalBg>
+        <ModalWrap>
+          <ModalCloseButton />
+          <ModalImage>
+            <img src="https://assets.website-files.com/6024f92b17cc648cdd48d5de/6440ea081c857f6a97c00484_Elemental%20pixar%20animation%20in%20Cannes%20for%20MIME.jpg" alt="" />
+          </ModalImage>
+          <ModalText>
+            <ModalSummary>
+              <SummaryTitle>Elemental</SummaryTitle>
+              <SummaryInfo>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero?</SummaryInfo>
+            </ModalSummary>
+            <ModalDetail>
+              <DetailRating>
+                <i>
+                  <strong style={{width: '70%'}}></strong>
+                </i>
+                <span>(3.5)</span>
+              </DetailRating>
+              <DetailInfo>
+                <strong>Cast</strong>
+                <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
+              </DetailInfo>
+              <DetailInfo>
+                <strong>Genre</strong>
+                <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
+              </DetailInfo>
+            </ModalDetail>
+          </ModalText>
+        </ModalWrap>
+      </ModalBg>
     </>
   );
 }

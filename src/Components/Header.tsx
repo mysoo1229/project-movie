@@ -1,11 +1,14 @@
-import { useState } from "react";
 import styled from "styled-components";
 
 const HeaderWrap = styled.div`
   display: flex;
   margin-bottom: 20px;
-  padding: 16px 24px;
+  padding: 16px 4px;
   align-items: center;
+
+  @media screen and (max-width: 1328px) {
+    padding: 16px 28px;
+  }
 `;
 
 const Logo = styled.div`
