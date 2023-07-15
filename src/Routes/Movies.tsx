@@ -1,14 +1,23 @@
 import starGray from "../resources/star-gray.png";
 import starYellow from "../resources/star-yellow.png";
 import styled from "styled-components";
+import { useQuery } from "react-query";
+import { getMovies, IGetMoviesResult, makeImagePath } from "../api";
 
-const MainVisual = styled.div`
+const Loading = styled.div`
+  padding-top: 50px;
+  text-align: center;
+  font-size: 17px;
+`;
+
+const MainVisual = styled.div<{ $bgImage: string | undefined }>`
   position: relative;
   width: 100%;
-  height: 60vh;
+  height: 65vh;
   margin-bottom: 60px;
   border-radius: 16px;
   overflow: hidden;
+  background-image: url(${(props) => props.$bgImage});
   background-size: cover;
   background-position: center;
 
@@ -16,7 +25,7 @@ const MainVisual = styled.div`
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .75));
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .6));
   }
 `;
 
@@ -24,7 +33,7 @@ const VisualInner = styled.div`
   position: absolute;
   bottom: 0;
   z-index: 1;
-  width: 65%;
+  width: 45%;
   padding: 50px 30px;
 `;
 
@@ -33,7 +42,7 @@ const VisualTitle = styled.div`
   font-weight: bold;
 `;
 
-const VisualDescription = styled.div`
+const VisualOverview = styled.div`
   display: -webkit-box;
   width: 100%;
   height: 66px;
@@ -326,68 +335,78 @@ const DetailInfo = styled.div`
 
 
 function Movies() {
+  const { data, isLoading } = useQuery<IGetMoviesResult>(
+    ["movies", "nowPlaying"],
+    getMovies, 
+    { staleTime: Infinity }
+  );
+
   return (
     <>
-      <MainVisual
-        style={{backgroundImage: `url(${"https://assets.website-files.com/6024f92b17cc648cdd48d5de/6440ea081c857f6a97c00484_Elemental%20pixar%20animation%20in%20Cannes%20for%20MIME.jpg"})`}}
-      >
-        <VisualInner>
-          <VisualTitle>Elemental</VisualTitle>
-          <VisualDescription>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Unde alias maiores excepturi error qui, pramet conse ctetur adipisicing elit ovident eos dolorem totam incidunt? Consequatur, iure. Odio doloribus ab debitis consectetur quae nobis pariatur fuga!</VisualDescription>
-          <VisualButton>MORE INFO</VisualButton>
-        </VisualInner>
-      </MainVisual>
+      {isLoading ? (
+        <Loading>Loading movies...</Loading>
+      ) : (
+        <>
+          <MainVisual $bgImage={makeImagePath(data?.results[3].backdrop_path, "original")}>
+            <VisualInner>
+              <VisualTitle>{data?.results[3].title}</VisualTitle>
+              <VisualOverview>{data?.results[3].overview}</VisualOverview>
+              <VisualButton>MORE INFO</VisualButton>
+            </VisualInner>
+          </MainVisual>
 
-      <Section>
-        <SectionTitle>Now Playing</SectionTitle>
-        <SectionSlider>
-          <SectionList>
-            {["1", "2", "3", "4", "5", "6"].map((item) => (
-              <SectionItem key={item}>
-                <ItemImage>
-                  <img src="https://m.media-amazon.com/images/M/MV5BZjYxYWVjMDMtZGRjZS00ZDE4LTk0OWUtMjUyOTI4MmYxNjgwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_SL1024_.jpg" alt="" />
-                </ItemImage>
-                <ItemInfo>
-                  <h3>Elemental</h3>
-                </ItemInfo>
-              </SectionItem>
-            ))}
-          </SectionList>
-          <ButtonPrev></ButtonPrev>
-          <ButtonNext></ButtonNext>
-        </SectionSlider>
-      </Section>
+          <Section>
+            <SectionTitle>Now Playing</SectionTitle>
+            <SectionSlider>
+              <SectionList>
+                {["1", "2", "3", "4", "5", "6"].map((item) => (
+                  <SectionItem key={item}>
+                    <ItemImage>
+                      <img src="https://m.media-amazon.com/images/M/MV5BZjYxYWVjMDMtZGRjZS00ZDE4LTk0OWUtMjUyOTI4MmYxNjgwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_SL1024_.jpg" alt="" />
+                    </ItemImage>
+                    <ItemInfo>
+                      <h3>Elemental</h3>
+                    </ItemInfo>
+                  </SectionItem>
+                ))}
+              </SectionList>
+              <ButtonPrev></ButtonPrev>
+              <ButtonNext></ButtonNext>
+            </SectionSlider>
+          </Section>
 
-      <ModalBg>
-        <ModalWrap>
-          <ModalCloseButton />
-          <ModalImage>
-            <img src="https://assets.website-files.com/6024f92b17cc648cdd48d5de/6440ea081c857f6a97c00484_Elemental%20pixar%20animation%20in%20Cannes%20for%20MIME.jpg" alt="" />
-          </ModalImage>
-          <ModalText>
-            <ModalSummary>
-              <SummaryTitle>Elemental</SummaryTitle>
-              <SummaryInfo>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero?</SummaryInfo>
-            </ModalSummary>
-            <ModalDetail>
-              <DetailRating>
-                <i>
-                  <strong style={{width: '70%'}}></strong>
-                </i>
-                <span>(3.5)</span>
-              </DetailRating>
-              <DetailInfo>
-                <strong>Cast</strong>
-                <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-              </DetailInfo>
-              <DetailInfo>
-                <strong>Genre</strong>
-                <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-              </DetailInfo>
-            </ModalDetail>
-          </ModalText>
-        </ModalWrap>
-      </ModalBg>
+          <ModalBg>
+            <ModalWrap>
+              <ModalCloseButton />
+              <ModalImage>
+                <img src="https://assets.website-files.com/6024f92b17cc648cdd48d5de/6440ea081c857f6a97c00484_Elemental%20pixar%20animation%20in%20Cannes%20for%20MIME.jpg" alt="" />
+              </ModalImage>
+              <ModalText>
+                <ModalSummary>
+                  <SummaryTitle>Elemental</SummaryTitle>
+                  <SummaryInfo>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero?</SummaryInfo>
+                </ModalSummary>
+                <ModalDetail>
+                  <DetailRating>
+                    <i>
+                      <strong style={{width: '70%'}}></strong>
+                    </i>
+                    <span>(3.5)</span>
+                  </DetailRating>
+                  <DetailInfo>
+                    <strong>Cast</strong>
+                    <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
+                  </DetailInfo>
+                  <DetailInfo>
+                    <strong>Genre</strong>
+                    <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
+                  </DetailInfo>
+                </ModalDetail>
+              </ModalText>
+            </ModalWrap>
+          </ModalBg>
+        </>
+      )}
     </>
   );
 }
