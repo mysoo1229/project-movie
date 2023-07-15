@@ -5,7 +5,6 @@ import { useQuery } from "react-query";
 import { getMovies, IGetMoviesResult, makeImagePath } from "../api";
 import { motion, AnimatePresence} from "framer-motion";
 import { useState } from "react";
-import { isAbsolute } from "node:path/win32";
 
 const Loading = styled.div`
   padding-top: 50px;
@@ -75,6 +74,7 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
+  margin-bottom: 16px;
   padding-left: 4px;
   font-size: 22px;
   font-weight: bold;
@@ -90,7 +90,7 @@ const SectionSlider = styled.div`
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 21%;
+  padding-bottom: 24%;
   overflow: hidden;
 `;
 
@@ -101,17 +101,17 @@ const SectionList = styled(motion.ul)`
   grid-template-columns: repeat(6, 16%);
   justify-content: space-between;
   width: 100%;
-  margin-top: 16px;
 `;
 
 const SectionItem = styled(motion.li)`
   position: relative;
+  cursor: pointer;
 `;
 
 const ItemImage = styled.div`
   position: relative;
   height: 0;
-  padding-top: 120%;
+  padding-top: 150%;
   border-radius: 12px;
   overflow: hidden;
 
@@ -360,39 +360,55 @@ const DetailInfo = styled.div`
 `;
 
 const rowVariants = {
-  initial: {
-    x: window.innerWidth,
+  initial: (backward: boolean) => {
+    return {
+      x: backward ? -window.innerWidth : window.innerWidth,
+    }
   },
   visible: {
     x: 0,
   },
-  exit: {
-    x: -window.innerWidth,
+  exit: (backward: boolean) => {
+    return {
+      x: backward ? window.innerWidth : -window.innerWidth,
+    }
   },
 };
 
 const slideNum = 6;
 
 function Movies() {
+  const [ slideIndex, setSlideIndex ] = useState(0);
+  const [ leaving, setLeaving ] = useState(false);
+  const [ backward, setBackward ] = useState(false);
+  const toggleLeaving = () => setLeaving((prev) => !prev);
+
   const { data, isLoading } = useQuery<IGetMoviesResult>(
     ["movies", "nowPlaying"],
     getMovies, 
     { staleTime: Infinity }
   );
 
-  const [ slideIndex, setSlideIndex ] = useState(0);
-  const [ leaving, setLeaving ] = useState(false);
-  const nextIndex = () => {
-    if (!data) return;
-    if (leaving) return;
+  const moveNowPlaying = (direction: string) => {
+    if (!data || leaving) return;
 
-    const totalMovieNum = data?.results.length - 1;
+    const totalMovieNum = data?.results.length;
     const maxIndex = Math.floor(totalMovieNum / slideNum) - 1;
 
-    setSlideIndex((prev) => prev === maxIndex ? 0 : prev + 1);
-    setLeaving(true);
+    if (direction === "prev") {
+      setBackward(true);
+      setLeaving(true);
+      setSlideIndex((prev) => prev === 0 ? maxIndex : prev - 1);
+    } else {
+      setBackward(false);
+      setLeaving(true);
+      setSlideIndex((prev) => prev === maxIndex ? 0 : prev + 1);
+    }
   };
-  const toggleLeaving = () => setLeaving((prev) => !prev);
+
+  const resultNowPlaying = data?.results
+    .filter((item, index) => index !== 3)
+    .slice(slideIndex*slideNum, slideIndex*slideNum + slideNum);
 
   return (
     <>
@@ -412,7 +428,11 @@ function Movies() {
             <SectionTitle>Now Playing</SectionTitle>
             <SectionContent>
               <SectionSlider>
-                <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                <AnimatePresence
+                  initial={false}
+                  onExitComplete={toggleLeaving}
+                  custom={backward}
+                >
                   <SectionList
                     key={slideIndex}
                     variants={rowVariants}
@@ -420,22 +440,23 @@ function Movies() {
                     animate="visible"
                     exit="exit"
                     transition={{ type: "linear" }}
+                    custom={backward}
                   >
-                    {["1", "2", "3", "4", "5", "6"].map((item) => (
-                      <SectionItem key={item}>
+                    {resultNowPlaying?.map((item, index) => (
+                      <SectionItem key={index} style={{color: 'white', fontSize: 18}}>
                         <ItemImage>
-                          <img src="" alt="poster" />
+                          <img src={makeImagePath(item.poster_path, 'w300')} alt="poster" />
                         </ItemImage>
                         <ItemInfo>
-                          <h3>Elemental</h3>
+                          {/* <h3>{item.title}</h3> */}
                         </ItemInfo>
                       </SectionItem>
                     ))}
                   </SectionList>
                 </AnimatePresence>
               </SectionSlider>
-              <ButtonPrev></ButtonPrev>
-              <ButtonNext onClick={nextIndex} aria-label="next" />
+              <ButtonPrev onClick={() => moveNowPlaying("prev")} aria-label="prev" />
+              <ButtonNext onClick={() => moveNowPlaying("next")} aria-label="next" />
             </SectionContent>
           </Section>
 
