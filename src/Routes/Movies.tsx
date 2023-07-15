@@ -91,11 +91,9 @@ const SectionSlider = styled.div`
   width: 100%;
   height: 0;
   padding-bottom: 24%;
-  overflow: hidden;
 `;
 
 const SectionList = styled(motion.ul)`
-  position: relative;
   display: grid;
   position: absolute;
   grid-template-columns: repeat(6, 16%);
@@ -103,44 +101,37 @@ const SectionList = styled(motion.ul)`
   width: 100%;
 `;
 
-const SectionItem = styled(motion.li)`
-  position: relative;
-  cursor: pointer;
-`;
-
-const ItemImage = styled.div`
-  position: relative;
-  height: 0;
+const SectionItem = styled(motion.li)<{ $bgImage: string }>`
   padding-top: 150%;
   border-radius: 12px;
-  overflow: hidden;
+  background: url(${(props) => props.$bgImage}) no-repeat center top / 100% auto;
+  cursor: pointer;
 
-  img {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    inset: 0;
-    object-fit: cover;
+  &:first-child {
+    transform-origin: center left;
+  }
+
+  &:last-child {
+    transform-origin: center right;
   }
 `;
 
-const ItemInfo = styled.div`
-  display: none;
-  margin-top: 6px;
-  padding: 10px 12px;
-  background: #222;
+const ItemInfo = styled(motion.div)`
+  position: absolute;
+  width: 100%;
+  bottom: -1px;
+  padding: 18px 12px;
+  background: rgba(0, 0, 0, .8);
+  border-radius: 0 0 12px 12px;
   text-align: center;
+  opacity: 0;
 
   h3 {
-    display: -webkit-box;
-    overflow: hidden;
-    word-break: break-word;
-    text-overflow: ellipsis;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    font-size: 15px;
-    line-height: 25px;
-    font-weight: bold;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: normal;
+    text-transform: uppercase;
+    letter-spacing: 3px;
   }
 `;
 
@@ -375,6 +366,33 @@ const rowVariants = {
   },
 };
 
+const itemVariants = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    y: -40,
+    scale: 1.15,
+    boxShadow: '0 0 5px 3px rgba(0, 0, 0, .4)',
+    transition: {
+      type: "tween",
+      duration: .2,
+      delay: .3,
+    },
+  }
+}
+
+const infoVariants = {
+  hover: {
+    opacity: 1,
+    transition: {
+      type: "tween",
+      duration: .2,
+      delay: .3,
+    },
+  },
+};
+
 const slideNum = 6;
 
 function Movies() {
@@ -442,13 +460,17 @@ function Movies() {
                     transition={{ type: "linear" }}
                     custom={backward}
                   >
-                    {resultNowPlaying?.map((item, index) => (
-                      <SectionItem key={index} style={{color: 'white', fontSize: 18}}>
-                        <ItemImage>
-                          <img src={makeImagePath(item.poster_path, 'w300')} alt="poster" />
-                        </ItemImage>
-                        <ItemInfo>
-                          {/* <h3>{item.title}</h3> */}
+                    {resultNowPlaying?.map((item) => (
+                      <SectionItem
+                        key={item.id}
+                        variants={itemVariants}
+                        initial="normal"
+                        whileHover="hover"
+                        transition={{type: "tween"}}
+                        $bgImage={makeImagePath(item.poster_path)}
+                      >
+                        <ItemInfo variants={infoVariants}>
+                          <h3>{item.title}</h3>
                         </ItemInfo>
                       </SectionItem>
                     ))}
