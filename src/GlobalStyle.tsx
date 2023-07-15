@@ -34,6 +34,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     line-height: 1;
     background-color: ${props => props.theme.black.darker};
+    overflow-x: hidden;
   }
   body * {
     font-family: 'Inter', sans-serif;

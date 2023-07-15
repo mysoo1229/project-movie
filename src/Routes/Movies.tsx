@@ -3,6 +3,9 @@ import starYellow from "../resources/star-yellow.png";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { getMovies, IGetMoviesResult, makeImagePath } from "../api";
+import { motion, AnimatePresence} from "framer-motion";
+import { useState } from "react";
+import { isAbsolute } from "node:path/win32";
 
 const Loading = styled.div`
   padding-top: 50px;
@@ -45,7 +48,6 @@ const VisualTitle = styled.div`
 const VisualOverview = styled.div`
   display: -webkit-box;
   width: 100%;
-  height: 66px;
   margin-top: 16px;
   overflow: hidden;
   word-break: break-word;
@@ -73,26 +75,37 @@ const Section = styled.section`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 20px;
+  padding-left: 4px;
+  font-size: 22px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
 `;
 
-const SectionSlider = styled.div`
+const SectionContent = styled.div`
   position: relative;
 `;
 
-const SectionList = styled.ul`
+const SectionSlider = styled.div`
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 21%;
+  overflow: hidden;
+`;
+
+const SectionList = styled(motion.ul)`
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
+  position: absolute;
+  grid-template-columns: repeat(6, 16%);
+  justify-content: space-between;
+  width: 100%;
   margin-top: 16px;
 `;
 
-const SectionItem = styled.li`
+const SectionItem = styled(motion.li)`
   position: relative;
-  overflow: hidden;
 `;
 
 const ItemImage = styled.div`
@@ -133,45 +146,58 @@ const ItemInfo = styled.div`
 
 const ButtonSlider = styled.button`
   position: absolute;
-  top: 0;
-  width: 50px;
-  height: 100%;
-  background: rgba(255, 255, 255, .1);
-  border-radius: 12px;
-  opacity: 0;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 1);
+  border-radius: 23px;
+  opacity: 0.2;
   transition: opacity .2s ease-in-out;
 
+  @media screen and (max-width: 1400px) {
+    opacity: 0.4;
+  }
+
   &:hover {
-    opacity: 1;
+    opacity: .8;
   }
 
   &::after {
     content: "";
     position: absolute;
-    top: 50%;
-    width: 16px;
-    height: 16px;
-    transform: rotate(45deg) translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-bottom: 2px solid #222;
+    border-left: 2px solid #222;
   }
 `;
 
 const ButtonPrev = styled(ButtonSlider)`
-  left: -54px;
+  left: -60px;
+
+  @media screen and (max-width: 1420px) {
+    left: -24px;
+  }
 
   &::after {
-    left: 12px;
-    border-bottom: 4px solid rgba(255, 255, 255, .9);
-    border-left: 4px solid rgba(255, 255, 255, .9);
+    top: 16px;
+    left: 18px;
+    transform: rotate(45deg);
   }
 `;
 
 const ButtonNext = styled(ButtonSlider)`
-  right: -54px;
+  right: -60px;
+
+  @media screen and (max-width: 1420px) {
+    right: -24px;
+  }
 
   &::after {
-    left: 4px;
-    border-top: 4px solid rgba(255, 255, 255, .9);
-    border-right: 4px solid rgba(255, 255, 255, .9);
+    top: 16px;
+    left: 12px;
+    transform: rotate(225deg);
   }
 `;
 
@@ -333,6 +359,19 @@ const DetailInfo = styled.div`
   }
 `;
 
+const rowVariants = {
+  initial: {
+    x: window.innerWidth,
+  },
+  visible: {
+    x: 0,
+  },
+  exit: {
+    x: -window.innerWidth,
+  },
+};
+
+const slideNum = 6;
 
 function Movies() {
   const { data, isLoading } = useQuery<IGetMoviesResult>(
@@ -340,6 +379,20 @@ function Movies() {
     getMovies, 
     { staleTime: Infinity }
   );
+
+  const [ slideIndex, setSlideIndex ] = useState(0);
+  const [ leaving, setLeaving ] = useState(false);
+  const nextIndex = () => {
+    if (!data) return;
+    if (leaving) return;
+
+    const totalMovieNum = data?.results.length - 1;
+    const maxIndex = Math.floor(totalMovieNum / slideNum) - 1;
+
+    setSlideIndex((prev) => prev === maxIndex ? 0 : prev + 1);
+    setLeaving(true);
+  };
+  const toggleLeaving = () => setLeaving((prev) => !prev);
 
   return (
     <>
@@ -357,22 +410,33 @@ function Movies() {
 
           <Section>
             <SectionTitle>Now Playing</SectionTitle>
-            <SectionSlider>
-              <SectionList>
-                {["1", "2", "3", "4", "5", "6"].map((item) => (
-                  <SectionItem key={item}>
-                    <ItemImage>
-                      <img src="https://m.media-amazon.com/images/M/MV5BZjYxYWVjMDMtZGRjZS00ZDE4LTk0OWUtMjUyOTI4MmYxNjgwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_SL1024_.jpg" alt="" />
-                    </ItemImage>
-                    <ItemInfo>
-                      <h3>Elemental</h3>
-                    </ItemInfo>
-                  </SectionItem>
-                ))}
-              </SectionList>
+            <SectionContent>
+              <SectionSlider>
+                <AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+                  <SectionList
+                    key={slideIndex}
+                    variants={rowVariants}
+                    initial="initial"
+                    animate="visible"
+                    exit="exit"
+                    transition={{ type: "linear" }}
+                  >
+                    {["1", "2", "3", "4", "5", "6"].map((item) => (
+                      <SectionItem key={item}>
+                        <ItemImage>
+                          <img src="" alt="poster" />
+                        </ItemImage>
+                        <ItemInfo>
+                          <h3>Elemental</h3>
+                        </ItemInfo>
+                      </SectionItem>
+                    ))}
+                  </SectionList>
+                </AnimatePresence>
+              </SectionSlider>
               <ButtonPrev></ButtonPrev>
-              <ButtonNext></ButtonNext>
-            </SectionSlider>
+              <ButtonNext onClick={nextIndex} aria-label="next" />
+            </SectionContent>
           </Section>
 
           <ModalBg>

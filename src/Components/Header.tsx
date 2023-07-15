@@ -20,8 +20,8 @@ const HeaderWrap = styled.header`
   padding: 16px 4px;
   align-items: center;
 
-  @media screen and (max-width: 1328px) {
-    padding: 16px 28px;
+  @media screen and (max-width: 1420px) {
+    padding: 16px 34px;
   }
 `;
 
