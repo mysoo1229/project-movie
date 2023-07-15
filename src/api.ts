@@ -7,6 +7,7 @@ interface IMovie {
   id: number;
   title: string;
   overview: string;
+  release_date: string;
 };
 
 export interface IGetMoviesResult {

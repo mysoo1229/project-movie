@@ -3,8 +3,9 @@ import starYellow from "../resources/star-yellow.png";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { getMovies, IGetMoviesResult, makeImagePath } from "../api";
-import { motion, AnimatePresence} from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence, easeInOut} from "framer-motion";
+import { SyntheticEvent, useState } from "react";
+import { useHistory, useRouteMatch } from "react-router";
 
 const Loading = styled.div`
   padding-top: 50px;
@@ -108,11 +109,11 @@ const SectionItem = styled(motion.li)<{ $bgImage: string }>`
   cursor: pointer;
 
   &:first-child {
-    transform-origin: center left;
+    transform-origin: center left !important;
   }
 
   &:last-child {
-    transform-origin: center right;
+    transform-origin: center right !important;
   }
 `;
 
@@ -192,10 +193,9 @@ const ButtonNext = styled(ButtonSlider)`
   }
 `;
 
-const ModalBg = styled.div`
+const ModalBg = styled(motion.div)`
   z-index: 99;
   display: flex;
-  display: none;
   justify-content: center;
   align-items: center;
   position: fixed;
@@ -203,7 +203,7 @@ const ModalBg = styled.div`
   background: rgba(0, 0, 0, .8);
 `;
 
-const ModalWrap = styled.div`
+const ModalWrap = styled(motion.div)`
   position: relative;
   width: 600px;
   height: 70vh;
@@ -230,9 +230,9 @@ const ModalCloseButton = styled.button`
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 30px;
-  height: 30px;
-  border-radius: 15px;
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
   background-color: rgba(0, 0, 0, .4);
   color: #fff;
 
@@ -243,8 +243,8 @@ const ModalCloseButton = styled.button`
     position: absolute;
     width: 15px;
     height: 2px;
-    top: 14px;
-    left: 8px;
+    top: 15px;
+    left: 9px;
     background: #fff;
   }
 
@@ -268,7 +268,7 @@ const ModalImage = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    height: 80px;
+    height: 140px;
     background: linear-gradient(to bottom, transparent, #222);
   }
 
@@ -279,6 +279,17 @@ const ModalImage = styled.div`
     inset: 0;
     object-fit: cover;
   }
+`;
+
+const ModalTitle = styled.h3`
+  z-index: 1;
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  width: 80%;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: bold;
 `;
 
 const ModalText = styled.div`
@@ -292,13 +303,7 @@ const ModalSummary = styled.div`
   width: 65%;
 `;
 
-const SummaryTitle = styled.h3`
-  font-size: 28px;
-  font-weight: bold;
-`;
-
 const SummaryInfo = styled.div`
-  margin-top: 12px;
   font-size: 13px;
   line-height: 1.5;
 `;
@@ -399,6 +404,8 @@ function Movies() {
   const [ slideIndex, setSlideIndex ] = useState(0);
   const [ leaving, setLeaving ] = useState(false);
   const [ backward, setBackward ] = useState(false);
+  const history = useHistory();
+  const modalMatch = useRouteMatch<{movieId: string}>("/movies/:movieId");
   const toggleLeaving = () => setLeaving((prev) => !prev);
 
   const { data, isLoading } = useQuery<IGetMoviesResult>(
@@ -428,6 +435,14 @@ function Movies() {
     .filter((item, index) => index !== 3)
     .slice(slideIndex*slideNum, slideIndex*slideNum + slideNum);
 
+  const onItemClick = (movieId: number) => history.push(`/movies/${movieId}`);
+  const onModalClick = () => history.push("/");
+  const clickedId = modalMatch?.params.movieId;
+  const clickedMovie = clickedId && data?.results.find((item) => item.id === +clickedId);
+  const hanldeImgError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = "/images/blank.gif";
+  };
+
   return (
     <>
       {isLoading ? (
@@ -445,7 +460,7 @@ function Movies() {
           <Section>
             <SectionTitle>Now Playing</SectionTitle>
             <SectionContent>
-              <SectionSlider>
+              <SectionSlider style={{ overflow: leaving ? 'hidden' : 'visible' }}>
                 <AnimatePresence
                   initial={false}
                   onExitComplete={toggleLeaving}
@@ -468,6 +483,8 @@ function Movies() {
                         whileHover="hover"
                         transition={{type: "tween"}}
                         $bgImage={makeImagePath(item.poster_path)}
+                        onClick={() => onItemClick(item.id)}
+                        layoutId={item.id+""}
                       >
                         <ItemInfo variants={infoVariants}>
                           <h3>{item.title}</h3>
@@ -481,37 +498,52 @@ function Movies() {
               <ButtonNext onClick={() => moveNowPlaying("next")} aria-label="next" />
             </SectionContent>
           </Section>
-
-          <ModalBg>
-            <ModalWrap>
-              <ModalCloseButton />
-              <ModalImage>
-                <img src="https://assets.website-files.com/6024f92b17cc648cdd48d5de/6440ea081c857f6a97c00484_Elemental%20pixar%20animation%20in%20Cannes%20for%20MIME.jpg" alt="" />
-              </ModalImage>
-              <ModalText>
-                <ModalSummary>
-                  <SummaryTitle>Elemental</SummaryTitle>
-                  <SummaryInfo>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero? Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, autem nobis! Asperiores, eius! Libero rem sapiente officiis molestiae fugiat impedit unde dolore illo minima, amet magni architecto adipisci inventore vero?</SummaryInfo>
-                </ModalSummary>
-                <ModalDetail>
-                  <DetailRating>
-                    <i>
-                      <strong style={{width: '70%'}}></strong>
-                    </i>
-                    <span>(3.5)</span>
-                  </DetailRating>
-                  <DetailInfo>
-                    <strong>Cast</strong>
-                    <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-                  </DetailInfo>
-                  <DetailInfo>
-                    <strong>Genre</strong>
-                    <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-                  </DetailInfo>
-                </ModalDetail>
-              </ModalText>
-            </ModalWrap>
-          </ModalBg>
+          
+          <AnimatePresence>
+            {modalMatch ? (
+              <ModalBg
+                onClick={onModalClick}
+                animate={{opacity: 1}}
+                exit={{opacity: 0}}
+              >
+                <ModalWrap
+                  onClick={(e) => e.stopPropagation()}
+                  layoutId={modalMatch.params.movieId}
+                >
+                  <ModalCloseButton onClick={onModalClick} aria-label="Close Modal" />
+                  {clickedMovie && (
+                    <>
+                      <ModalImage>
+                        <img src={makeImagePath(clickedMovie.backdrop_path, 'original')} alt="" onError={hanldeImgError} />
+                        <ModalTitle>{clickedMovie.title}</ModalTitle>
+                      </ModalImage>
+                      <ModalText>
+                        <ModalSummary>
+                          <SummaryInfo>{clickedMovie.overview}</SummaryInfo>
+                        </ModalSummary>
+                        <ModalDetail>
+                          <DetailRating>
+                            <i>
+                              <strong style={{width: '70%'}}></strong>
+                            </i>
+                            <span>(3.5)</span>
+                          </DetailRating>
+                          <DetailInfo>
+                            <strong>Release Date</strong>
+                            <span>{clickedMovie.release_date}</span>
+                          </DetailInfo>
+                          <DetailInfo>
+                            <strong>Genre</strong>
+                            <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
+                          </DetailInfo>
+                        </ModalDetail>
+                      </ModalText>
+                    </>
+                  )}
+                </ModalWrap>
+              </ModalBg>
+            ) : null}
+          </AnimatePresence>
         </>
       )}
     </>
