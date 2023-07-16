@@ -101,7 +101,7 @@ const ModalTitle = styled.h3`
   position: absolute;
   bottom: 20px;
   left: 24px;
-  width: 80%;
+  width: calc(100% - 220px);
   font-size: 32px;
   line-height: 1.2;
   font-weight: bold;
@@ -110,25 +110,19 @@ const ModalTitle = styled.h3`
 const ModalText = styled.div`
   display: flex;
   padding: 24px;
-  gap: 20px;
+  gap: 24px;
 `;
 
-const ModalSummary = styled.div`
-  flex-shrink: 0;
-  width: 65%;
-`;
-
-const SummaryInfo = styled.div`
+const ModalInfo = styled.div`
   font-size: 13px;
-  line-height: 1.5;
 `;
 
-const ModalDetail = styled.div`
-  font-size: 13px;
-  line-height: 1.5;
+const InfoDetail = styled.div`
+  display: flex;
+  margin-bottom: 24px;
 `;
 
-const DetailRating = styled.div`
+const InfoRating = styled.div`
   i {
     display: inline-block;
     position: relative;
@@ -148,17 +142,19 @@ const DetailRating = styled.div`
     display: inline-block;
     margin-left: 6px;
     font-size: 13px;
-    line-height: 15px;
+    line-height: 16px;
     color: ${props => props.theme.blue};
   }
 `;
 
-const DetailInfo = styled.div`
-  margin-top: 16px;
+const InfoDate = styled.div`
+  margin-left: 24px;
 
   strong {
     margin-right: 6px;
     color: ${props => props.theme.blue};
+    vertical-align: top;
+    line-height: 16px;
 
     &::after {
       content: ":";
@@ -166,7 +162,32 @@ const DetailInfo = styled.div`
   }
 
   span {
+    line-height: 16px;
     color: #999;
+  }
+`;
+
+const InfoOverview = styled.div`
+  line-height: 1.5;
+`;
+
+const ModalPoster = styled.div`
+  width: 150px;
+  flex-shrink: 0;
+`;
+
+const PosterWrap = styled.div`
+  z-index: 1;
+  position: relative;
+  width: 150px;
+  height: 225px;
+  margin: -80px 0 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 5px 3px rgba(34, 34, 34, .2);
+
+  img {
+    width: 100%;
   }
 `;
 
@@ -211,25 +232,30 @@ function Modal({ clickedMovie, currentLayoutId, media }: IModal) {
             <ModalTitle>{media === "tv" ? clickedMovie.name : clickedMovie.title}</ModalTitle>
           </ModalImage>
           <ModalText>
-            <ModalSummary>
-              <SummaryInfo>{clickedMovie.overview}</SummaryInfo>
-            </ModalSummary>
-            <ModalDetail>
-              <DetailRating>
-                <i>
-                  <strong style={{width: '70%'}}></strong>
-                </i>
-                <span>(3.5)</span>
-              </DetailRating>
-              <DetailInfo>
-                <strong>Release Date</strong>
-                <span>{clickedMovie.release_date}</span>
-              </DetailInfo>
-              <DetailInfo>
-                <strong>Genre</strong>
-                <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-              </DetailInfo>
-            </ModalDetail>
+            <ModalInfo>
+              <InfoDetail>
+                <InfoRating>
+                  <i>
+                    <strong style={{width: '70%'}}></strong>
+                  </i>
+                  <span>(3.5)</span>
+                </InfoRating>
+                <InfoDate>
+                  <strong>Release Date</strong>
+                  <span>{media === "tv" ?  clickedMovie.first_air_date : clickedMovie.release_date}</span>
+                </InfoDate>
+              </InfoDetail>
+              <InfoOverview>{clickedMovie.overview}</InfoOverview>
+            </ModalInfo>
+            <ModalPoster>
+              <PosterWrap>
+                <img 
+                  src={makeImagePath(clickedMovie.poster_path, 'w300')}
+                  onError={handleImgError}
+                  alt="movie poster"
+                />
+              </PosterWrap>
+            </ModalPoster>
           </ModalText>
           </>
         )}
