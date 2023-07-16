@@ -2,10 +2,11 @@ import starGray from "../resources/star-gray.png";
 import starYellow from "../resources/star-yellow.png";
 import styled from "styled-components";
 import { useQuery } from "react-query";
-import { getMovies, IGetMoviesResult, makeImagePath } from "../api";
-import { motion, AnimatePresence, easeInOut} from "framer-motion";
+import { IMovie, getMovies, IGetMoviesResult, makeImagePath } from "../api";
+import { motion, AnimatePresence } from "framer-motion";
 import { SyntheticEvent, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router";
+import Section from "../Components/Section";
 
 const Loading = styled.div`
   padding-top: 50px;
@@ -68,72 +69,6 @@ const VisualButton = styled.button`
   line-height: 34px;
   font-weight: bold;
   color: #222;
-`;
-
-const Section = styled.section`
-  margin: 40px 0;
-`;
-
-const SectionTitle = styled.h2`
-  margin-bottom: 16px;
-  padding-left: 4px;
-  font-size: 22px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-`;
-
-const SectionContent = styled.div`
-  position: relative;
-`;
-
-const SectionSlider = styled.div`
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 24%;
-`;
-
-const SectionList = styled(motion.ul)`
-  display: grid;
-  position: absolute;
-  grid-template-columns: repeat(6, 16%);
-  justify-content: space-between;
-  width: 100%;
-`;
-
-const SectionItem = styled(motion.li)<{ $bgImage: string }>`
-  padding-top: 150%;
-  border-radius: 12px;
-  background: url(${(props) => props.$bgImage}) no-repeat center top / 100% auto;
-  cursor: pointer;
-
-  &:first-child {
-    transform-origin: center left !important;
-  }
-
-  &:last-child {
-    transform-origin: center right !important;
-  }
-`;
-
-const ItemInfo = styled(motion.div)`
-  position: absolute;
-  width: 100%;
-  bottom: -1px;
-  padding: 18px 12px;
-  background: rgba(0, 0, 0, .8);
-  border-radius: 0 0 12px 12px;
-  text-align: center;
-  opacity: 0;
-
-  h3 {
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: normal;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-  }
 `;
 
 const ButtonSlider = styled.button`
@@ -398,50 +333,19 @@ const infoVariants = {
   },
 };
 
-const slideNum = 6;
-
 function Movies() {
-  const [ slideIndex, setSlideIndex ] = useState(0);
-  const [ leaving, setLeaving ] = useState(false);
-  const [ backward, setBackward ] = useState(false);
-  const history = useHistory();
-  const modalMatch = useRouteMatch<{movieId: string}>("/movies/:movieId");
-  const toggleLeaving = () => setLeaving((prev) => !prev);
+  //쿼리 호출
+  const useMultipleQuery = () => {
+    const queryNow = useQuery<IGetMoviesResult>( ["movieNow"], () => getMovies("now_playing"), { staleTime: Infinity });
+    const queryTop = useQuery<IGetMoviesResult>( ["movieTop"], () => getMovies("top_rated"), { staleTime: Infinity });
 
-  const { data, isLoading } = useQuery<IGetMoviesResult>(
-    ["movies", "nowPlaying"],
-    getMovies, 
-    { staleTime: Infinity }
-  );
-
-  const moveNowPlaying = (direction: string) => {
-    if (!data || leaving) return;
-
-    const totalMovieNum = data?.results.length;
-    const maxIndex = Math.floor(totalMovieNum / slideNum) - 1;
-
-    if (direction === "prev") {
-      setBackward(true);
-      setLeaving(true);
-      setSlideIndex((prev) => prev === 0 ? maxIndex : prev - 1);
-    } else {
-      setBackward(false);
-      setLeaving(true);
-      setSlideIndex((prev) => prev === maxIndex ? 0 : prev + 1);
-    }
+    return [queryNow, queryTop];
   };
-
-  const resultNowPlaying = data?.results
-    .filter((item, index) => index !== 3)
-    .slice(slideIndex*slideNum, slideIndex*slideNum + slideNum);
-
-  const onItemClick = (movieId: number) => history.push(`/movies/${movieId}`);
-  const onModalClick = () => history.push("/");
-  const clickedId = modalMatch?.params.movieId;
-  const clickedMovie = clickedId && data?.results.find((item) => item.id === +clickedId);
-  const hanldeImgError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = "/images/blank.gif";
-  };
+  const [
+    { data: dataNow, isLoading: isLoadingNow },
+    { data: dataTop, isLoading: isLoadingTop },
+  ] = useMultipleQuery();
+  const isLoading = isLoadingNow || isLoadingTop;
 
   return (
     <>
@@ -449,101 +353,23 @@ function Movies() {
         <Loading>Loading movies...</Loading>
       ) : (
         <>
-          <MainVisual $bgImage={makeImagePath(data?.results[3].backdrop_path, "original")}>
+          <MainVisual $bgImage={makeImagePath(dataNow?.results[3].backdrop_path, "original")}>
             <VisualInner>
-              <VisualTitle>{data?.results[3].title}</VisualTitle>
-              <VisualOverview>{data?.results[3].overview}</VisualOverview>
+              <VisualTitle>{dataNow?.results[3].title}</VisualTitle>
+              <VisualOverview>{dataNow?.results[3].overview}</VisualOverview>
               <VisualButton>MORE INFO</VisualButton>
             </VisualInner>
           </MainVisual>
 
-          <Section>
-            <SectionTitle>Now Playing</SectionTitle>
-            <SectionContent>
-              <SectionSlider style={{ overflow: leaving ? 'hidden' : 'visible' }}>
-                <AnimatePresence
-                  initial={false}
-                  onExitComplete={toggleLeaving}
-                  custom={backward}
-                >
-                  <SectionList
-                    key={slideIndex}
-                    variants={rowVariants}
-                    initial="initial"
-                    animate="visible"
-                    exit="exit"
-                    transition={{ type: "linear" }}
-                    custom={backward}
-                  >
-                    {resultNowPlaying?.map((item) => (
-                      <SectionItem
-                        key={item.id}
-                        variants={itemVariants}
-                        initial="normal"
-                        whileHover="hover"
-                        transition={{type: "tween"}}
-                        $bgImage={makeImagePath(item.poster_path)}
-                        onClick={() => onItemClick(item.id)}
-                        layoutId={item.id+""}
-                      >
-                        <ItemInfo variants={infoVariants}>
-                          <h3>{item.title}</h3>
-                        </ItemInfo>
-                      </SectionItem>
-                    ))}
-                  </SectionList>
-                </AnimatePresence>
-              </SectionSlider>
-              <ButtonPrev onClick={() => moveNowPlaying("prev")} aria-label="prev" />
-              <ButtonNext onClick={() => moveNowPlaying("next")} aria-label="next" />
-            </SectionContent>
-          </Section>
-          
-          <AnimatePresence>
-            {modalMatch ? (
-              <ModalBg
-                onClick={onModalClick}
-                animate={{opacity: 1}}
-                exit={{opacity: 0}}
-              >
-                <ModalWrap
-                  onClick={(e) => e.stopPropagation()}
-                  layoutId={modalMatch.params.movieId}
-                >
-                  <ModalCloseButton onClick={onModalClick} aria-label="Close Modal" />
-                  {clickedMovie && (
-                    <>
-                      <ModalImage>
-                        <img src={makeImagePath(clickedMovie.backdrop_path, 'original')} alt="" onError={hanldeImgError} />
-                        <ModalTitle>{clickedMovie.title}</ModalTitle>
-                      </ModalImage>
-                      <ModalText>
-                        <ModalSummary>
-                          <SummaryInfo>{clickedMovie.overview}</SummaryInfo>
-                        </ModalSummary>
-                        <ModalDetail>
-                          <DetailRating>
-                            <i>
-                              <strong style={{width: '70%'}}></strong>
-                            </i>
-                            <span>(3.5)</span>
-                          </DetailRating>
-                          <DetailInfo>
-                            <strong>Release Date</strong>
-                            <span>{clickedMovie.release_date}</span>
-                          </DetailInfo>
-                          <DetailInfo>
-                            <strong>Genre</strong>
-                            <span>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</span>
-                          </DetailInfo>
-                        </ModalDetail>
-                      </ModalText>
-                    </>
-                  )}
-                </ModalWrap>
-              </ModalBg>
-            ) : null}
-          </AnimatePresence>
+          <Section
+            data={dataNow as IGetMoviesResult}
+            title={"Now Playing"}
+          />
+
+          <Section
+            data={dataTop as IGetMoviesResult}
+            title={"Top Rated"}
+          />
         </>
       )}
     </>
