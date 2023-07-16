@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
-import { IMovie, makeImagePath } from "../api";
+import { IResults, makeImagePath } from "../api";
 import { useState } from "react";
 import Modal from "./Modal";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -172,14 +172,15 @@ const infoVariants = {
 };
 
 interface ISection {
-  data: IMovie[] | undefined;
+  data: IResults[] | undefined;
   title: string;
   sectionId: string;
+  media: string;
 };
 
 const slideNum = 6;
 
-function Section({ data, title, sectionId }: ISection) {
+function Section({ data, title, media, sectionId }: ISection) {
   //for slider
   const [ slideIndex, setSlideIndex ] = useState(0);
   const [ leaving, setLeaving ] = useState(false);
@@ -204,8 +205,10 @@ function Section({ data, title, sectionId }: ISection) {
 
   //for modal
   const history = useHistory();
-  const modalMatch = useRouteMatch<{movieId: string}>(`/movies/${sectionId}/:movieId`);
-  const openModal = (movieId: number) => history.push(`/movies/${sectionId}/${movieId}`);
+  const modalMatch = useRouteMatch<{movieId: string}>(`/${media}/${sectionId}/:movieId`);
+  const openModal = (movieId: number, media: string) => {
+    history.push(`/${media}/${sectionId}/${movieId}`)
+  }
   const clickedId = modalMatch?.params.movieId;
   const clickedMovie = clickedId && data?.find((item) => item.id === +clickedId);
 
@@ -240,11 +243,11 @@ function Section({ data, title, sectionId }: ISection) {
                       initial="normal"
                       whileHover="hover"
                       transition={{type: "tween"}}
-                      onClick={() => openModal(item.id)}
+                      onClick={() => openModal(item.id, media)}
                       layoutId={`${sectionId}${item.id}`}
                     >
                       <ItemInfo variants={infoVariants}>
-                        <h3>{item.title}</h3>
+                        <h3>{media === "tv" ? item.name : item.title}</h3>
                       </ItemInfo>
                     </SectionItem>
                 ))}
@@ -261,6 +264,7 @@ function Section({ data, title, sectionId }: ISection) {
           <Modal
             clickedMovie={clickedMovie}
             currentLayoutId={`${sectionId}${clickedId}`}
+            media={media}
           />
         ) : null}
       </AnimatePresence>

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { IMovie, makeImagePath } from "../api";
+import { IResults, makeImagePath } from "../api";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Modal from "./Modal";
@@ -63,21 +63,23 @@ const BannerButton = styled.button`
 `;
 
 interface IBanner {
-  data: IMovie | undefined;
+  data: IResults | undefined;
+  media: string;
 };
 
-function Banner({ data }: IBanner) {
+function Banner({ data, media }: IBanner) {
   const history = useHistory();
-  const openModal = (movieId: number) => history.push(`/movies/banner/${movieId}`);
-  const modalMatch = useRouteMatch<{movieId: string}>(`/movies/banner/:movieId`);
-  const clickedId = modalMatch?.params.movieId;
+  const currentId = data && data.id;
+  const openModal = (currentId: number) => history.push(`/${media}/banner/${currentId}`);
+  const modalMatch = useRouteMatch<{currentId: string}>(`/${media}/banner/${currentId}`);
+  const clickedId = modalMatch?.params.currentId;
 
   return (
     <>
       <BannerWrap $bgImage={makeImagePath(data?.backdrop_path, "original")}>
         {data && (
           <BannerInner>
-            <BannerTitle>{data.title}</BannerTitle>
+            <BannerTitle>{media === "tv" ? data.name : data.title}</BannerTitle>
             <BannerOverview>{data.overview}</BannerOverview>
             <BannerButton onClick={() => openModal(data.id)}>MORE INFO</BannerButton>
           </BannerInner>
@@ -89,6 +91,7 @@ function Banner({ data }: IBanner) {
           <Modal
             clickedMovie={data}
             currentLayoutId={`now${clickedId}`}
+            media={media}
           />
         ) : null}
       </AnimatePresence>

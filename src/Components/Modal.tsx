@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import starGray from "../resources/star-gray.png";
 import starYellow from "../resources/star-yellow.png";
 import { useHistory } from "react-router-dom";
-import { IMovie } from "../api";
+import { IResults } from "../api";
 import { makeImagePath } from "../api";
 import { SyntheticEvent } from "react";
 
@@ -171,13 +171,20 @@ const DetailInfo = styled.div`
 `;
 
 interface IModal {
-  clickedMovie: IMovie | undefined;
+  clickedMovie: IResults | undefined;
   currentLayoutId: string;
+  media: string;
 }
 
-function Modal({ clickedMovie, currentLayoutId }: IModal) {
+function Modal({ clickedMovie, currentLayoutId, media }: IModal) {
   const history = useHistory();
-  const closeModal = () => history.push("/");
+  const closeModal = () => {
+    if (media === "movie") {
+      history.push("/");
+    } else {
+      history.push(`/${media}`);
+    }
+  }
   const handleImgError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = "/images/blank.gif";
   };
@@ -201,7 +208,7 @@ function Modal({ clickedMovie, currentLayoutId }: IModal) {
               onError={handleImgError}
               alt="movie image"
             />
-            <ModalTitle>{clickedMovie.title}</ModalTitle>
+            <ModalTitle>{media === "tv" ? clickedMovie.name : clickedMovie.title}</ModalTitle>
           </ModalImage>
           <ModalText>
             <ModalSummary>

@@ -1,7 +1,7 @@
 
 import styled from "styled-components";
 import { useQuery } from "react-query";
-import { getMovies, IGetMoviesResult } from "../api";
+import { getDB, IGetDB } from "../api";
 import Banner from "../Components/Banner";
 import Section from "../Components/Section";
 
@@ -14,10 +14,10 @@ const Loading = styled.div`
 function Movies() {
   //쿼리 호출
   const useMultipleQuery = () => {
-    const queryNow = useQuery<IGetMoviesResult>( ["movieNow"], () => getMovies("now_playing"), { staleTime: Infinity });
-    const queryTop = useQuery<IGetMoviesResult>( ["movieTop"], () => getMovies("top_rated"), { staleTime: Infinity });
-    const queryUpcoming = useQuery<IGetMoviesResult>( ["movieUpcoming"], () => getMovies("upcoming"), { staleTime: Infinity });
-    const queryPopular = useQuery<IGetMoviesResult>( ["moviePopular"], () => getMovies("popular"), { staleTime: Infinity });
+    const queryNow = useQuery<IGetDB>( ["movieNow"], () => getDB("movie", "now_playing"), { staleTime: Infinity });
+    const queryTop = useQuery<IGetDB>( ["movieTop"], () => getDB("movie", "top_rated"), { staleTime: Infinity });
+    const queryUpcoming = useQuery<IGetDB>( ["movieUpcoming"], () => getDB("movie", "upcoming"), { staleTime: Infinity });
+    const queryPopular = useQuery<IGetDB>( ["moviePopular"], () => getDB("movie", "popular"), { staleTime: Infinity });
     
     return [queryNow, queryTop, queryUpcoming, queryPopular];
   };
@@ -36,30 +36,35 @@ function Movies() {
       ) : (
         <>
           <Banner
-            data={dataNow?.results[3]}
+            data={dataNow?.results[0]}
+            media={"movie"}
           />
 
           <Section
-            data={dataNow?.results.filter((item, index) => index !== 3)}
+            data={dataNow?.results.slice(1, dataNow.results.length)}
             title={"Now Playing"}
+            media={"movie"}
             sectionId={"now"}
           />
 
           <Section
             data={dataTop?.results}
             title={"Top Rated"}
+            media={"movie"}
             sectionId={"top"}
           />
 
           <Section
             data={dataUpcoming?.results}
             title={"Upcoming"}
+            media={"movie"}
             sectionId={"up"}
           />
 
           <Section
             data={dataPopular?.results}
             title={"Popular"}
+            media={"movie"}
             sectionId={"popular"}
           />
         </>
