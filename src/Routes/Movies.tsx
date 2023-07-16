@@ -118,14 +118,18 @@ function Movies() {
   const useMultipleQuery = () => {
     const queryNow = useQuery<IGetMoviesResult>( ["movieNow"], () => getMovies("now_playing"), { staleTime: Infinity });
     const queryTop = useQuery<IGetMoviesResult>( ["movieTop"], () => getMovies("top_rated"), { staleTime: Infinity });
-
-    return [queryNow, queryTop];
+    const queryUpcoming = useQuery<IGetMoviesResult>( ["movieUpcoming"], () => getMovies("upcoming"), { staleTime: Infinity });
+    const queryPopular = useQuery<IGetMoviesResult>( ["moviePopular"], () => getMovies("popular"), { staleTime: Infinity });
+    
+    return [queryNow, queryTop, queryUpcoming, queryPopular];
   };
   const [
     { data: dataNow, isLoading: isLoadingNow },
     { data: dataTop, isLoading: isLoadingTop },
+    { data: dataUpcoming, isLoading: isLoadingUpcoming },
+    { data: dataPopular, isLoading: isLoadingPopular },
   ] = useMultipleQuery();
-  const isLoading = isLoadingNow || isLoadingTop;
+  const isLoading = isLoadingNow || isLoadingTop || isLoadingUpcoming || isLoadingPopular;
 
   return (
     <>
@@ -151,6 +155,18 @@ function Movies() {
             data={dataTop as IGetMoviesResult}
             title={"Top Rated"}
             sectionId={"top"}
+          />
+
+          <Section
+            data={dataUpcoming as IGetMoviesResult}
+            title={"Upcoming"}
+            sectionId={"up"}
+          />
+
+          <Section
+            data={dataPopular as IGetMoviesResult}
+            title={"Popular"}
+            sectionId={"popular"}
           />
         </>
       )}
