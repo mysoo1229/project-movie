@@ -14,7 +14,7 @@ const ModalBg = styled(motion.div)`
   align-items: center;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .5);
+  background: rgba(0, 0, 0, .8);
   opacity: 0;
 `;
 

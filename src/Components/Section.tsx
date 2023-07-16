@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
-import { IGetMoviesResult, makeImagePath } from "../api";
+import { IMovie, makeImagePath } from "../api";
 import { useState } from "react";
 import Modal from "./Modal";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -172,7 +172,7 @@ const infoVariants = {
 };
 
 interface ISection {
-  data: IGetMoviesResult;
+  data: IMovie[] | undefined;
   title: string;
   sectionId: string;
 };
@@ -188,7 +188,7 @@ function Section({ data, title, sectionId }: ISection) {
   const changeSlide = (direction: string) => {
     if (!data || leaving) return;
 
-    const totalMovieNum = data?.results.length;
+    const totalMovieNum = data?.length;
     const maxIndex = Math.floor(totalMovieNum / slideNum) - 1;
 
     if (direction === "prev") {
@@ -204,17 +204,17 @@ function Section({ data, title, sectionId }: ISection) {
 
   //for modal
   const history = useHistory();
-  const modalMatch = useRouteMatch<{movieId: string}>("/movies/:movieId");
-  const openModal = (movieId: number) => history.push(`/movies/${movieId}`);
+  const modalMatch = useRouteMatch<{movieId: string}>(`/movies/${sectionId}/:movieId`);
+  const openModal = (movieId: number) => history.push(`/movies/${sectionId}/${movieId}`);
   const clickedId = modalMatch?.params.movieId;
-  const clickedMovie = clickedId && data?.results.find((item) => item.id === +clickedId);
+  const clickedMovie = clickedId && data?.find((item) => item.id === +clickedId);
 
   return (
     <>
       <SectionWrap>
         <SectionTitle>{title}</SectionTitle>
         <SectionContent>
-          <SectionSlider>
+          <SectionSlider style={{ overflow: leaving ? 'hidden' : 'visible' }}>
             <AnimatePresence
                 initial={false}
                 onExitComplete={toggleLeaving}
@@ -229,7 +229,8 @@ function Section({ data, title, sectionId }: ISection) {
                 transition={{ type: "linear", duration: .5 }}
                 custom={backward}
               >
-                {data?.results
+                {data &&
+                  data
                   .slice(slideIndex * slideNum, slideIndex * slideNum + slideNum)
                   .map((item) => (
                     <SectionItem
