@@ -41,28 +41,28 @@ function Tv() {
 
           <Section
             data={dataTop?.results.slice(1, dataTop.results.length)}
-            title={"Top Rated"}
+            title={"TOP RATED"}
             media={MEDIA}
             sectionId={"top"}
           />
 
           <Section
             data={dataOn?.results}
-            title={"On The Air"}
+            title={"ON THE AIR"}
             media={MEDIA}
             sectionId={"onair"}
           />
 
           <Section
             data={dataToday?.results}
-            title={"Airing Today"}
+            title={"AIRING TODAY"}
             media={MEDIA}
             sectionId={"today"}
           />
 
           <Section
             data={dataPopular?.results}
-            title={"Popular"}
+            title={"POPULAR"}
             media={MEDIA}
             sectionId={"popular"}
           />

@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { IResults, makeImagePath } from "../api";
-import { useState } from "react";
+import React, { useState } from "react";
 import Modal from "./Modal";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
 const SectionWrap = styled.section`
-  margin: 40px 0;
+  margin: 50px 0;
 `;
 
 const SectionTitle = styled.h2`
@@ -14,8 +14,11 @@ const SectionTitle = styled.h2`
   padding-left: 4px;
   font-size: 22px;
   font-weight: bold;
-  text-transform: uppercase;
   letter-spacing: 1px;
+
+  strong {
+    color: ${(props) => props.theme.blue};
+  }
 `;
 
 const SectionContent = styled.div`
@@ -40,7 +43,7 @@ const SectionList = styled(motion.ul)`
 const SectionItem = styled(motion.li)<{ $bgImage: string }>`
   padding-top: 150%;
   border-radius: 12px;
-  background: url(${(props) => props.$bgImage}) no-repeat center top / 100% auto;
+  background: #262626 url(${(props) => props.$bgImage}) no-repeat center top / cover;
   cursor: pointer;
 
   &:first-child {
@@ -173,7 +176,7 @@ const infoVariants = {
 
 interface ISection {
   data: IResults[] | undefined;
-  title: string;
+  title: any;
   sectionId: string;
   media: string;
 };
@@ -247,7 +250,7 @@ function Section({ data, title, media, sectionId }: ISection) {
                       layoutId={`${sectionId}${item.id}`}
                     >
                       <ItemInfo variants={infoVariants}>
-                        <h3>{media === "tv" ? item.name : item.title}</h3>
+                        <h3>{media.includes("tv") ? item.name : item.title}</h3>
                       </ItemInfo>
                     </SectionItem>
                 ))}

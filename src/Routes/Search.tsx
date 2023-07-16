@@ -1,11 +1,21 @@
-import starGray from "../resources/star-gray.png";
-import starYellow from "../resources/star-yellow.png";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
+import Section from "../Components/Section";
+import { IGetDB, getSearchResult } from "../api";
+import { useQuery } from "react-query";
+import { useEffect } from "react";
+
+const Loading = styled.div`
+  padding-top: 50px;
+  text-align: center;
+  font-size: 17px;
+`;
 
 const ResultList = styled.ul`
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 60px 20px;
+  grid-template-columns: repeat(6, minmax(0, 16%));
+  gap: 60px 0;
+  justify-content: space-between;
 `;
 
 const ItemImage = styled.div`
@@ -23,77 +33,78 @@ const ItemInfo = styled.div`
 
 const Title = styled.h3`
   width: 100%;
-  font-size: 17px;
+  font-size: 20px;
   line-height: 25px;
   font-weight: bold;
 `;
 
-const Rating = styled.div`
-  margin: 10px 0 8px;
-
-  i {
-    display: inline-block;
-    position: relative;
-    width: 75px;
-    height: 15px;
-    background: url(${starGray}) repeat-x 0 0 / 15px auto;
-    vertical-align: top;
-  }
-
-  strong {
-    position: absolute;
-    height: 15px;
-    background: url(${starYellow}) repeat-x 0 0 / 15px auto;
-  }
-
-  span {
-    display: inline-block;
-    margin-left: 6px;
-    font-size: 13px;
-    line-height: 15px;
-    color: ${props => props.theme.blue};
-  }
-`;
-
-const Genre = styled.div`
+const Overview = styled.div`
+  display: -webkit-box;
+  margin-top: 5px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  word-break: break-word;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   font-size: 13px;
+  line-height: 16px;
   color: #999;
 `;
 
 const NoResult = styled.div`
-  display: none;
-  padding-top: 50px;
+  padding: 50px 0;
   text-align: center;
   font-size: 17px;
 `;
 
 function Search() {
+  const location = useLocation();
+  const keyword = new URLSearchParams(location.search).get("keyword");
+
+  const useMultipleQuery = () => {
+    const queryMovie = useQuery<IGetDB>( ["searchMovie", keyword], () => getSearchResult("movie", keyword || ""));
+    const queryTv = useQuery<IGetDB>( ["searchTv", keyword], () => getSearchResult("tv", keyword || ""));
+    
+    return [queryMovie, queryTv];
+  };
+  const [
+    { data: dataMovie, isLoading: isLoadingMovie },
+    { data: dataTv, isLoading: isLoadingTv },
+  ] = useMultipleQuery();
+  const isLoading = isLoadingMovie || isLoadingTv;
+  const noResultMovie = dataMovie?.results.length === 0;
+  const noResultTv = dataTv?.results.length === 0;
+
   return (
     <>
-      <ResultList>
-        {["1", "2", "3", "4", "5", "6", "7"].map((item) => (
-          <li key={item}>
-            <ItemImage>
-              <img src="https://m.media-amazon.com/images/M/MV5BZjYxYWVjMDMtZGRjZS00ZDE4LTk0OWUtMjUyOTI4MmYxNjgwXkEyXkFqcGdeQXVyMTUzMTg2ODkz._V1_SL1024_.jpg" alt="" />
-            </ItemImage>
-            <ItemInfo>
-              <Title>Elemental</Title>
-              <Rating>
-                <i>
-                  <strong style={{width: '70%'}}></strong>
-                </i>
-                <span>(3.5)</span>
-              </Rating>
-              <Genre>like what, djksd, allsd, we, aslef, asdfef, asef sdl, dfsd</Genre>
-            </ItemInfo>
-          </li>
-        ))}
-      </ResultList>
+      {isLoading ? (
+        <Loading>Loading search results...</Loading>
+      ) : 
+        keyword ? (
+        <>
+          {noResultMovie ? (
+            <NoResult>Sorry, there is no movie matching your search.</NoResult>
+          ) : (
+            <Section
+              data={dataMovie?.results}
+              title={["Movie Results for '", <strong>{keyword}</strong>, "'"]}
+              media={"search_movie"}
+              sectionId={"movie"}
+            />
+          )}
 
-      <NoResult>Sorry, there is nothing that matches your search.</NoResult>
+          {noResultTv ? (
+            <NoResult>Sorry, there is no TV show matching your search.</NoResult>
+          ) : (
+            <Section
+              data={dataTv?.results}
+              title={["TV Show Results for '", <strong>{keyword}</strong>, "'"]}
+              media={"search_tv"}
+              sectionId={"tv"}
+            />
+          )}
+        </>
+      ) : <Loading>Sorry, it's unavailable</Loading>}
     </>
   );
 }

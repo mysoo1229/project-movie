@@ -43,28 +43,28 @@ function Movies() {
 
           <Section
             data={dataNow?.results.slice(1, dataNow.results.length)}
-            title={"Now Playing"}
+            title={"NOW PLAYING"}
             media={MEDIA}
             sectionId={"now"}
           />
 
           <Section
             data={dataTop?.results}
-            title={"Top Rated"}
+            title={"TOP RATED"}
             media={MEDIA}
             sectionId={"top"}
           />
 
           <Section
             data={dataUpcoming?.results}
-            title={"Upcoming"}
+            title={"UPCOMING"}
             media={MEDIA}
             sectionId={"upcoming"}
           />
 
           <Section
             data={dataPopular?.results}
-            title={"Popular"}
+            title={"POPULAR"}
             media={MEDIA}
             sectionId={"popular"}
           />

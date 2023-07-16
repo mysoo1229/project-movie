@@ -17,7 +17,13 @@ export interface IGetDB {
 };
 
 export function getDB(media: string, type: string) {
-  return fetch(`${BASE_PATH}/${media}/${type}?page=1&api_key=${API_KEY}&language=en&page=1&region=kr`).then(
+  return fetch(`${BASE_PATH}/${media}/${type}?page=1&api_key=${API_KEY}&include_adult=false&page=1&region=kr`).then(
+    (response) => response.json()
+  );
+};
+
+export function getSearchResult(media: string, keyword: string) {
+  return fetch(`${BASE_PATH}/search/${media}?api_key=${API_KEY}&query=${keyword}&include_adult=false&region=kr`).then(
     (response) => response.json()
   );
 };

@@ -1,8 +1,9 @@
 import { motion, useAnimation, useMotionValueEvent, useScroll } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { useRouteMatch } from "react-router";
 import styled from "styled-components";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 const HeaderFix = styled(motion.div)`
   z-index: 98;
@@ -62,7 +63,7 @@ const LinkActive = styled(motion.i)`
   background-color: ${props => props.theme.blue};
 `;
 
-const SearchWrap = styled.div`
+const SearchWrap = styled.form`
   position: relative;
   margin-left: auto;
 `;
@@ -101,13 +102,15 @@ const navVariants = {
   scroll: { backgroundColor: 'rgba(0, 0, 0, 1)' },
 };
 
+interface ISearch {
+  keyword: string;
+};
+
 function Header() {
   const movieMatch = useRouteMatch("/");
   const tvMatch = useRouteMatch("/tv");
-  const [searchOpen, setSearchOpen] = useState(false);
   const navAnimation = useAnimation();
   const { scrollY } = useScroll();
-  const clickSearch = () => {setSearchOpen((prev) => !prev)};
 
   useMotionValueEvent(scrollY, "change", (currentY) => {
     if (currentY > 30) {
@@ -116,6 +119,18 @@ function Header() {
       navAnimation.start("top")
     }
   });
+
+  //for Search
+  const [searchOpen, setSearchOpen] = useState(false);
+  const history = useHistory();
+  const { register, handleSubmit, setValue, setFocus } = useForm<ISearch>();
+  const clickSearch = () => {
+    setSearchOpen((prev) => !prev);
+    setFocus("keyword");
+  };
+  const onValid = (data: ISearch) => {
+    history.push(`/search?keyword=${data.keyword}`);
+  };
 
   return (
     <HeaderFix
@@ -136,9 +151,10 @@ function Header() {
             {tvMatch && <LinkActive layoutId="linkActive" />}
           </Link>
         </LinkWrap>
-        <SearchWrap>
+        <SearchWrap onSubmit={handleSubmit(onValid)}>
           <SearchButton
-            aria-label="검색"
+            type="button"
+            aria-label="Open Search"
             onClick={clickSearch}
             animate={{ x: searchOpen ? -185 : 0 }}
             transition={{ type: 'linear', duration: .2 }}
@@ -148,6 +164,10 @@ function Header() {
             </svg>
           </SearchButton>
           <SearchInput
+            {...register("keyword", {
+              required: true,
+              minLength: 2,
+            })}
             type="text"
             placeholder="Title, People, Genre ..."
             animate={{ scaleX: searchOpen ? 1 : 0 }}

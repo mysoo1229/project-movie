@@ -76,6 +76,7 @@ const ModalImage = styled.div`
   position: relative;
   height: 0;
   padding-top: 56.25%;
+  background-color: #262626;
 
   &::after {
     content: "";
@@ -229,7 +230,7 @@ function Modal({ clickedMovie, currentLayoutId, media }: IModal) {
               onError={handleImgError}
               alt="movie image"
             />
-            <ModalTitle>{media === "tv" ? clickedMovie.name : clickedMovie.title}</ModalTitle>
+            <ModalTitle>{media.includes("tv") ? clickedMovie.name : clickedMovie.title}</ModalTitle>
           </ModalImage>
           <ModalText>
             <ModalInfo>
@@ -242,7 +243,7 @@ function Modal({ clickedMovie, currentLayoutId, media }: IModal) {
                 </InfoRating>
                 <InfoDate>
                   <strong>Release Date</strong>
-                  <span>{media === "tv" ?  clickedMovie.first_air_date : clickedMovie.release_date}</span>
+                  <span>{media.includes("tv") ?  clickedMovie.first_air_date : clickedMovie.release_date}</span>
                 </InfoDate>
               </InfoDetail>
               <InfoOverview>{clickedMovie.overview}</InfoOverview>
