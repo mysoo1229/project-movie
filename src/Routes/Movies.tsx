@@ -12,12 +12,13 @@ const Loading = styled.div`
 `;
 
 function Movies() {
-  //쿼리 호출
+  const MEDIA = "movie"
+
   const useMultipleQuery = () => {
-    const queryNow = useQuery<IGetDB>( ["movieNow"], () => getDB("movie", "now_playing"), { staleTime: Infinity });
-    const queryTop = useQuery<IGetDB>( ["movieTop"], () => getDB("movie", "top_rated"), { staleTime: Infinity });
-    const queryUpcoming = useQuery<IGetDB>( ["movieUpcoming"], () => getDB("movie", "upcoming"), { staleTime: Infinity });
-    const queryPopular = useQuery<IGetDB>( ["moviePopular"], () => getDB("movie", "popular"), { staleTime: Infinity });
+    const queryNow = useQuery<IGetDB>( ["movieNow"], () => getDB(MEDIA, "now_playing"), { staleTime: Infinity });
+    const queryTop = useQuery<IGetDB>( ["movieTop"], () => getDB(MEDIA, "top_rated"), { staleTime: Infinity });
+    const queryUpcoming = useQuery<IGetDB>( ["movieUpcoming"], () => getDB(MEDIA, "upcoming"), { staleTime: Infinity });
+    const queryPopular = useQuery<IGetDB>( ["moviePopular"], () => getDB(MEDIA, "popular"), { staleTime: Infinity });
     
     return [queryNow, queryTop, queryUpcoming, queryPopular];
   };
@@ -37,34 +38,34 @@ function Movies() {
         <>
           <Banner
             data={dataNow?.results[0]}
-            media={"movie"}
+            media={MEDIA}
           />
 
           <Section
             data={dataNow?.results.slice(1, dataNow.results.length)}
             title={"Now Playing"}
-            media={"movie"}
+            media={MEDIA}
             sectionId={"now"}
           />
 
           <Section
             data={dataTop?.results}
             title={"Top Rated"}
-            media={"movie"}
+            media={MEDIA}
             sectionId={"top"}
           />
 
           <Section
             data={dataUpcoming?.results}
             title={"Upcoming"}
-            media={"movie"}
-            sectionId={"up"}
+            media={MEDIA}
+            sectionId={"upcoming"}
           />
 
           <Section
             data={dataPopular?.results}
             title={"Popular"}
-            media={"movie"}
+            media={MEDIA}
             sectionId={"popular"}
           />
         </>

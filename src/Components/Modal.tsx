@@ -43,12 +43,12 @@ const ModalWrap = styled(motion.div)`
 const ModalCloseButton = styled.button`
   z-index: 100;
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: rgba(0, 0, 0, .4);
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background-color: rgba(34, 34, 34, .7);
   color: #fff;
 
   &::before,
@@ -56,10 +56,10 @@ const ModalCloseButton = styled.button`
     content: "";
     display: block;
     position: absolute;
-    width: 15px;
+    width: 17px;
     height: 2px;
-    top: 15px;
-    left: 9px;
+    top: 17px;
+    left: 10px;
     background: #fff;
   }
 

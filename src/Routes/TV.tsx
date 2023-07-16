@@ -11,12 +11,12 @@ const Loading = styled.div`
 `;
 
 function Tv() {
-  //쿼리 호출
+  const MEDIA = "tv";
   const useMultipleQuery = () => {
-    const queryToday = useQuery<IGetDB>( ["tvToday"], () => getDB("tv", "airing_today"), { staleTime: Infinity });
-    const queryTop = useQuery<IGetDB>( ["tvTop"], () => getDB("tv", "top_rated"), { staleTime: Infinity });
-    const queryPopular = useQuery<IGetDB>( ["tvPopular"], () => getDB("tv", "popular"), { staleTime: Infinity });
-    const queryOn = useQuery<IGetDB>( ["tvOn"], () => getDB("tv", "on_the_air"), { staleTime: Infinity });
+    const queryToday = useQuery<IGetDB>( ["tvToday"], () => getDB(MEDIA, "airing_today"), { staleTime: Infinity });
+    const queryTop = useQuery<IGetDB>( ["tvTop"], () => getDB(MEDIA, "top_rated"), { staleTime: Infinity });
+    const queryPopular = useQuery<IGetDB>( ["tvPopular"], () => getDB(MEDIA, "popular"), { staleTime: Infinity });
+    const queryOn = useQuery<IGetDB>( ["tvOn"], () => getDB(MEDIA, "on_the_air"), { staleTime: Infinity });
     
     return [queryToday, queryTop, queryPopular, queryOn];
   };
@@ -31,39 +31,39 @@ function Tv() {
   return (
     <>
       {isLoading ? (
-        <Loading>Loading movies...</Loading>
+        <Loading>Loading TV shows...</Loading>
       ) : (
         <>
           <Banner
             data={dataTop?.results[0]}
-            media={"tv"}
+            media={MEDIA}
           />
 
           <Section
             data={dataTop?.results.slice(1, dataTop.results.length)}
             title={"Top Rated"}
-            media={"tv"}
+            media={MEDIA}
             sectionId={"top"}
           />
 
           <Section
             data={dataOn?.results}
             title={"On The Air"}
-            media={"tv"}
-            sectionId={"on"}
+            media={MEDIA}
+            sectionId={"onair"}
           />
 
           <Section
             data={dataToday?.results}
             title={"Airing Today"}
-            media={"tv"}
+            media={MEDIA}
             sectionId={"today"}
           />
 
           <Section
             data={dataPopular?.results}
             title={"Popular"}
-            media={"tv"}
+            media={MEDIA}
             sectionId={"popular"}
           />
         </>

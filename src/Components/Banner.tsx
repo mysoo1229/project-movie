@@ -27,18 +27,19 @@ const BannerInner = styled.div`
   position: absolute;
   bottom: 0;
   z-index: 1;
-  width: 45%;
+  width: 100%;
   padding: 50px 30px;
 `;
 
 const BannerTitle = styled.div`
+  width: 60%;
   font-size: 60px;
   font-weight: bold;
 `;
 
 const BannerOverview = styled.div`
   display: -webkit-box;
-  width: 100%;
+  width: 45%;
   margin-top: 16px;
   overflow: hidden;
   word-break: break-word;
