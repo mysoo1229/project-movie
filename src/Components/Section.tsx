@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { IGetMoviesResult, makeImagePath } from "../api";
 import { useState } from "react";
+import Modal from "./Modal";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 const SectionWrap = styled.section`
   margin: 40px 0;
@@ -172,16 +174,17 @@ const infoVariants = {
 interface ISection {
   data: IGetMoviesResult;
   title: string;
+  sectionId: string;
 };
 
 const slideNum = 6;
 
-function Section({ data, title }: ISection) {
+function Section({ data, title, sectionId }: ISection) {
+  //for slider
   const [ slideIndex, setSlideIndex ] = useState(0);
   const [ leaving, setLeaving ] = useState(false);
   const [ backward, setBackward ] = useState(false);
   const toggleLeaving = () => setLeaving((prev) => !prev);
-
   const changeSlide = (direction: string) => {
     if (!data || leaving) return;
 
@@ -199,48 +202,68 @@ function Section({ data, title }: ISection) {
     }
   };
 
+  //for modal
+  const history = useHistory();
+  const modalMatch = useRouteMatch<{movieId: string}>("/movies/:movieId");
+  const openModal = (movieId: number) => history.push(`/movies/${movieId}`);
+  const clickedId = modalMatch?.params.movieId;
+  const clickedMovie = clickedId && data?.results.find((item) => item.id === +clickedId);
+
   return (
-    <SectionWrap>
-      <SectionTitle>{title}</SectionTitle>
-      <SectionContent>
-        <SectionSlider>
-          <AnimatePresence
-              initial={false}
-              onExitComplete={toggleLeaving}
-              custom={backward}
-          >
-            <SectionList
-              key={slideIndex}
-              variants={listVariants}
-              initial="initial"
-              animate="visible"
-              exit="exit"
-              transition={{ type: "linear" }}
-              custom={backward}
+    <>
+      <SectionWrap>
+        <SectionTitle>{title}</SectionTitle>
+        <SectionContent>
+          <SectionSlider>
+            <AnimatePresence
+                initial={false}
+                onExitComplete={toggleLeaving}
+                custom={backward}
             >
-              {data?.results
-                .slice(slideIndex * slideNum, slideIndex * slideNum + slideNum)
-                .map((item) => (
-                  <SectionItem
-                    key={item.id}
-                    $bgImage={makeImagePath(item.poster_path)}
-                    variants={itemVariants}
-                    initial="normal"
-                    whileHover="hover"
-                    transition={{type: "tween"}}
-                  >
-                    <ItemInfo variants={infoVariants}>
-                      <h3>{item.title}</h3>
-                    </ItemInfo>
-                  </SectionItem>
-              ))}
-            </SectionList>
-          </AnimatePresence>
-        </SectionSlider>
-        <ButtonPrev onClick={() => changeSlide("prev")} aria-label="prev" />
-        <ButtonNext onClick={() => changeSlide("next")} aria-label="next" />
-      </SectionContent>
-    </SectionWrap>
+              <SectionList
+                key={slideIndex}
+                variants={listVariants}
+                initial="initial"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "linear", duration: .5 }}
+                custom={backward}
+              >
+                {data?.results
+                  .slice(slideIndex * slideNum, slideIndex * slideNum + slideNum)
+                  .map((item) => (
+                    <SectionItem
+                      key={item.id}
+                      $bgImage={makeImagePath(item.poster_path)}
+                      variants={itemVariants}
+                      initial="normal"
+                      whileHover="hover"
+                      transition={{type: "tween"}}
+                      onClick={() => openModal(item.id)}
+                      layoutId={`${sectionId}${item.id}`}
+                    >
+                      <ItemInfo variants={infoVariants}>
+                        <h3>{item.title}</h3>
+                      </ItemInfo>
+                    </SectionItem>
+                ))}
+              </SectionList>
+            </AnimatePresence>
+          </SectionSlider>
+          <ButtonPrev onClick={() => changeSlide("prev")} aria-label="prev" />
+          <ButtonNext onClick={() => changeSlide("next")} aria-label="next" />
+        </SectionContent>
+      </SectionWrap>
+
+      <AnimatePresence>
+        {modalMatch && clickedMovie ? (
+          <Modal
+            clickedMovie={clickedMovie}
+            currentLayoutId={`${sectionId}${clickedId}`}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   )
 }
 
