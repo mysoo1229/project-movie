@@ -15,10 +15,6 @@ const SectionTitle = styled.h2`
   font-size: 22px;
   font-weight: bold;
   letter-spacing: 1px;
-
-  strong {
-    color: ${(props) => props.theme.blue};
-  }
 `;
 
 const SectionContent = styled.div`
