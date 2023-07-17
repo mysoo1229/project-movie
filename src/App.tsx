@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import Header from "./Components/Header";
 import styled from "styled-components";
 import Movies from "./Routes/Movies";
@@ -24,7 +24,7 @@ const Contents = styled.div`
 function App() {
   return (
     <Container>
-      <Router>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <Header />
         <Contents>
           <Switch>
@@ -39,7 +39,7 @@ function App() {
             </Route>
           </Switch>
         </Contents>
-      </Router>
+      </BrowserRouter>
     </Container>
   );
 }
