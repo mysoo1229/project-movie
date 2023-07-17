@@ -21,6 +21,10 @@ const BannerWrap = styled.div<{ $bgImage: string | undefined }>`
     inset: 0;
     background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, .6));
   }
+
+  @media screen and (max-width: 1024px) {
+    height: 55vh;
+  }
 `;
 
 const BannerInner = styled.div`
@@ -35,6 +39,15 @@ const BannerTitle = styled.div`
   width: 60%;
   font-size: 60px;
   font-weight: bold;
+
+  @media screen and (max-width: 1024px) {
+    width: 70%;
+    font-size: 40px;
+  }
+
+  @media screen and (max-width: 640px) {
+    font-size: 28px;
+  }
 `;
 
 const BannerOverview = styled.div`
@@ -48,6 +61,16 @@ const BannerOverview = styled.div`
   -webkit-box-orient: vertical;
   font-size: 15px;
   line-height: 22px;
+
+  @media screen and (max-width: 1024px) {
+    width: 60%;
+  }
+
+  @media screen and (max-width: 640px) {
+    width: 90%;
+    font-size: 13px;
+    line-height: 18px;
+  }
 `;
 
 const BannerButton = styled.button`

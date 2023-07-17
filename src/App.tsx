@@ -9,6 +9,10 @@ const Container = styled.div`
   max-width: 1280px;
   margin: 0 auto;
   padding: 80px 0 60px;
+
+  @media screen and (max-width: 1024px) {
+    max-width: 800px;
+  }
 `;
 
 const Contents = styled.div`

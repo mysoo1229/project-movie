@@ -38,6 +38,11 @@ const ModalWrap = styled(motion.div)`
   &::-webkit-scrollbar-thumb {
     background: #666; 
   }
+
+  @media screen and (max-width: 640px) {
+    height: 100vh;
+    border-radius: 0;
+  }
 `;
 
 const ModalCloseButton = styled.button`
@@ -122,9 +127,15 @@ const ModalInfo = styled.div`
 const InfoDetail = styled.div`
   display: flex;
   margin-bottom: 24px;
+
+  @media screen and (max-width: 640px) {
+    display: block;
+  }
 `;
 
 const InfoRating = styled.div`
+  margin-right: 24px;
+
   i {
     display: inline-block;
     position: relative;
@@ -147,11 +158,13 @@ const InfoRating = styled.div`
     line-height: 16px;
     color: ${props => props.theme.blue};
   }
+
+  @media screen and (max-width: 640px) {
+    margin-bottom: 8px;
+  }
 `;
 
 const InfoDate = styled.div`
-  margin-left: 24px;
-
   strong {
     margin-right: 6px;
     color: ${props => props.theme.blue};

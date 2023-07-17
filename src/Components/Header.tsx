@@ -24,6 +24,10 @@ const HeaderWrap = styled.header`
   @media screen and (max-width: 1420px) {
     padding: 16px 34px;
   }
+
+  @media screen and (max-width: 1024px) {
+    max-width: 800px;
+  }
 `;
 
 const Logo = styled.h1`
@@ -32,7 +36,7 @@ const Logo = styled.h1`
   color: ${props => props.theme.blue};
 `;
 
-const LinkWrap = styled.nav`
+const LinkWrap = styled.nav<{$isSearchOpen: boolean}>`
   display: flex;
   margin-left: 30px;
 
@@ -46,7 +50,11 @@ const LinkWrap = styled.nav`
 
   span {
     display: block;
-    padding-bottom: 6px;
+    padding-bottom: 2px;
+  }
+
+  @media screen and (max-width: 1024px) {
+    display: ${(props) => props.$isSearchOpen ? "none" : "flex"};
   }
 `;
 
@@ -54,7 +62,7 @@ const LinkActive = styled(motion.i)`
   display: block;
   position: absolute;
   right: 0;
-  bottom: -2px;
+  bottom: -4px;
   left: 0;
   width: 16px;
   height: 2px;
@@ -142,6 +150,7 @@ function Header() {
           Cetflix
         </Logo>
         <LinkWrap>
+        <LinkWrap $isSearchOpen={searchOpen}>
           <Link to="/">
             <span>Movies</span>
             {movieMatch?.isExact && <LinkActive layoutId="linkActive" />}

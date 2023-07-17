@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { IResults, makeImagePath } from "../api";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import { useHistory, useRouteMatch } from "react-router-dom";
+import { debounce } from 'lodash';
 
 const SectionWrap = styled.section`
   margin: 50px 0;
@@ -15,6 +16,11 @@ const SectionTitle = styled.h2`
   font-size: 22px;
   font-weight: bold;
   letter-spacing: 1px;
+
+  @media screen and (max-width: 640px) {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
 `;
 
 const SectionContent = styled.div`
@@ -26,6 +32,10 @@ const SectionSlider = styled.div`
   width: 100%;
   height: 0;
   padding-bottom: 24%;
+
+  @media screen and (max-width: 1024px) {
+    padding-bottom: 50%;
+  }
 `;
 
 const SectionList = styled(motion.ul)`
@@ -34,6 +44,10 @@ const SectionList = styled(motion.ul)`
   grid-template-columns: repeat(6, 16%);
   justify-content: space-between;
   width: 100%;
+
+  @media screen and (max-width: 1024px) {
+    grid-template-columns: repeat(3, 32%);
+  }
 `;
 
 const SectionItem = styled(motion.li)<{ $bgImage: string }>`
@@ -68,6 +82,14 @@ const ItemInfo = styled(motion.div)`
     text-transform: uppercase;
     letter-spacing: 3px;
   }
+
+  @media screen and (max-width: 640px) {
+    h3 {
+      font-size: 13px;
+      line-height: 16px;
+      letter-spacing: 2px;
+    }
+  }
 `;
 
 const ButtonSlider = styled.button`
@@ -81,10 +103,6 @@ const ButtonSlider = styled.button`
   opacity: 0.2;
   transition: opacity .2s ease-in-out;
 
-  @media screen and (max-width: 1400px) {
-    opacity: 0.4;
-  }
-
   &:hover {
     opacity: .8;
   }
@@ -97,33 +115,65 @@ const ButtonSlider = styled.button`
     border-bottom: 2px solid #222;
     border-left: 2px solid #222;
   }
+
+  @media screen and (max-width: 1400px) {
+    opacity: 0.3;
+  }
+
+  @media screen and (max-width: 640px) {
+    width: 36px;
+    height: 36px;
+
+    &::after {
+      width: 8px;
+      height: 8px;
+    }
+  }
 `;
 
 const ButtonPrev = styled(ButtonSlider)`
   left: -60px;
-
-  @media screen and (max-width: 1420px) {
-    left: -24px;
-  }
 
   &::after {
     top: 16px;
     left: 18px;
     transform: rotate(45deg);
   }
+
+  @media screen and (max-width: 1420px) {
+    left: -24px;
+  }
+
+  @media screen and (max-width: 640px) {
+    left: -18px;
+
+    &::after {
+      top: 13px;
+      left: 15px;
+    }
+  }
 `;
 
 const ButtonNext = styled(ButtonSlider)`
   right: -60px;
 
-  @media screen and (max-width: 1420px) {
-    right: -24px;
-  }
-
   &::after {
     top: 16px;
     left: 12px;
     transform: rotate(225deg);
+  }
+
+  @media screen and (max-width: 1420px) {
+    right: -24px;
+  }
+
+  @media screen and (max-width: 640px) {
+    right: -18px;
+  
+    &::after {
+      top: 13px;
+      left: 11px;
+    }
   }
 `;
 
@@ -177,9 +227,22 @@ interface ISection {
   media: string;
 };
 
-const slideNum = 6;
-
 function Section({ data, title, media, sectionId }: ISection) {
+  //for responsive
+  const [ windowWidth, setWindowWidth ] = useState(window.innerWidth);
+  const handleResize = debounce(() => {
+    setWindowWidth(window.innerWidth);
+  }, 300);
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    }
+  },[]);
+
+  let slideNum = 6;
+  if (windowWidth < 1024) slideNum = 3;
+
   //for slider
   const [ slideIndex, setSlideIndex ] = useState(0);
   const [ leaving, setLeaving ] = useState(false);
