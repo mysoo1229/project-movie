@@ -10,6 +10,7 @@ const BASE_PATH = "https://api.themoviedb.org/3";
   release_date: string;
   first_air_date: string;
   name: string;
+  vote_average: number;
 };
 
 export interface IGetDB {
