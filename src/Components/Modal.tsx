@@ -256,7 +256,7 @@ function Modal({ clickedMovie, currentLayoutId, media, closeUrl }: IModal) {
                   <i>
                     <strong style={{width: `${clickedMovie.vote_average * 10}%`}}></strong>
                   </i>
-                  <span>({clickedMovie.vote_average})</span>
+                  <span>({Math.round(clickedMovie.vote_average * 10) / 10})</span>
                 </InfoRating>
                 <InfoDate>
                   <strong>Release Date</strong>

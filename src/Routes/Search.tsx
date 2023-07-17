@@ -1,9 +1,7 @@
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
-import Section from "../Components/Section";
 import { IGetDB, getSearchResult } from "../api";
 import { useQuery } from "react-query";
-import { useEffect } from "react";
 import SearchSection from "../Components/SearchSection";
 
 const Loading = styled.div`

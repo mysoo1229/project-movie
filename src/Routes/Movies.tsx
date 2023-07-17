@@ -13,7 +13,6 @@ const Loading = styled.div`
 
 function Movies() {
   const MEDIA = "movie"
-
   const useMultipleQuery = () => {
     const queryNow = useQuery<IGetDB>( ["movieNow"], () => getDB(MEDIA, "now_playing"), { staleTime: Infinity });
     const queryTop = useQuery<IGetDB>( ["movieTop"], () => getDB(MEDIA, "top_rated"), { staleTime: Infinity });

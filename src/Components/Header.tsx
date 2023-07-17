@@ -103,6 +103,11 @@ const SearchInput = styled(motion.input)`
     line-height: 22px;
     color: #999;
   }
+
+  &:focus {
+    outline: none;
+    border-bottom-color: ${props => props.theme.blue}
+  }
 `;
 
 const navVariants = {
@@ -138,6 +143,7 @@ function Header() {
   };
   const onValid = (data: ISearch) => {
     history.push(`/search?keyword=${data.keyword}`);
+    setValue("keyword", "");
   };
 
   return (
@@ -146,10 +152,11 @@ function Header() {
       animate={navAnimation}
     >
       <HeaderWrap>
-        <Logo>
-          Cetflix
-        </Logo>
-        <LinkWrap>
+        <Link to="/">
+          <Logo>
+            Cetflix
+          </Logo>
+        </Link>
         <LinkWrap $isSearchOpen={searchOpen}>
           <Link to="/">
             <span>Movies</span>
