@@ -112,6 +112,7 @@ const ModalText = styled.div`
   display: flex;
   padding: 24px;
   gap: 24px;
+  justify-content: space-between;
 `;
 
 const ModalInfo = styled.div`
@@ -196,12 +197,15 @@ interface IModal {
   clickedMovie: IResults | undefined;
   currentLayoutId: string;
   media: string;
+  closeUrl?: string;
 }
 
-function Modal({ clickedMovie, currentLayoutId, media }: IModal) {
+function Modal({ clickedMovie, currentLayoutId, media, closeUrl }: IModal) {
   const history = useHistory();
   const closeModal = () => {
-    if (media === "movie") {
+    if (closeUrl) {
+      history.push(closeUrl);
+    } else if (media === "movie") {
       history.push("/");
     } else {
       history.push(`/${media}`);

@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { IResults, makeImagePath } from "../api";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
+import Modal from "./Modal";
 
 const SectionWrap = styled.section`
   margin: 50px 0;
@@ -46,10 +48,11 @@ const SectionList = styled(motion.ul)`
 `;
 
 const SectionItem = styled(motion.li)`
+  opacity: .75;
   cursor: pointer;
 `;
 
-const ItemImage = styled.div<{ $bgImage: string }>`
+const ItemImage = styled(motion.div)<{ $bgImage: string }>`
   height: 0;
   padding-top: 150%;
   border-radius: 12px;
@@ -167,19 +170,22 @@ interface ISearchSection {
   data: IResults[] | undefined;
   title?: any;
   media: string;
+  keyword: string;
 };
 
 const slideNum = 6;
 
-function SearchSection({ data, title, media }: ISearchSection) {
+function SearchSection({ data, title, media, keyword }: ISearchSection) {
+  //for slide
   let hasButton = true;
   if (data && data?.length < slideNum * 2) {hasButton = false; }
   const numResult = () => {
-    if (!data) return;
-    if (data.length <= slideNum) {
-      return data?.length;
-    } else {
-      return Math.floor(data.length / slideNum) * slideNum;
+    if (data) {
+      if (data.length <= slideNum) {
+        return data?.length;
+      } else {
+        return Math.floor(data.length / slideNum) * slideNum;
+      }
     }
   }
   const [ slideIndex, setSlideIndex ] = useState(0);
@@ -203,52 +209,81 @@ function SearchSection({ data, title, media }: ISearchSection) {
     }
   };
 
+  //for modal
+  const history = useHistory();
+  const openModal = (id: number) => {
+    history.push(`/search/${media}/${id}?keyword=${keyword}`)
+  };
+  const modalMatch = useRouteMatch<{id: string}>(`/search/${media}/:id`);
+  const clickedId = modalMatch?.params.id;
+  const clickedMovie = clickedId && data?.find((item) => item.id === +clickedId);
+
   return (
-    <SectionWrap>
-      <SectionTitle>
-        <span>{title}</span>
-        <em>({numResult() as number})</em>
-      </SectionTitle>
-      <SectionContent>
-        <SectionSlider style={{ overflow: leaving ? 'hidden' : 'visible' }}>
-          <AnimatePresence
-              initial={false}
-              onExitComplete={toggleLeaving}
-              custom={backward}
-          >
-            <SectionList
-              key={slideIndex}
-              variants={listVariants}
-              initial="initial"
-              animate="visible"
-              exit="exit"
-              transition={{ type: "linear", duration: .5 }}
-              custom={backward}
+    <>
+      <SectionWrap>
+        <SectionTitle>
+          <span>{title}</span>
+          <em>({numResult() as number})</em>
+        </SectionTitle>
+        <SectionContent>
+          <SectionSlider style={{ overflow: leaving ? 'hidden' : 'visible' }}>
+            <AnimatePresence
+                initial={false}
+                onExitComplete={toggleLeaving}
+                custom={backward}
             >
-              {data &&
-                data
-                .slice(slideIndex * slideNum, slideIndex * slideNum + slideNum)
-                .map((item) => (
-                  <SectionItem
-                    key={item.id}
-                  >
-                    <ItemImage
-                      $bgImage={makeImagePath(item.poster_path)}
+              <SectionList
+                key={slideIndex}
+                variants={listVariants}
+                initial="initial"
+                animate="visible"
+                exit="exit"
+                transition={{ type: "linear", duration: .5 }}
+                custom={backward}
+              >
+                {data &&
+                  data
+                  .slice(slideIndex * slideNum, slideIndex * slideNum + slideNum)
+                  .map((item) => (
+                    <SectionItem
+                      key={item.id}
+                      whileHover={{ opacity: 1 }}
+                      onClick={() => openModal(item.id)}
                     >
-                    </ItemImage>
-                    <ItemInfo>
-                      <Title>{media.includes("tv") ? item.name : item.title}</Title>
-                      <Overview>{item.overview}</Overview>
-                    </ItemInfo>
-                  </SectionItem>
-              ))}
-            </SectionList>
-          </AnimatePresence>
-        </SectionSlider>
-          <ButtonPrev onClick={() => changeSlide("prev")} aria-label="prev" />
-          <ButtonNext onClick={() => changeSlide("next")} aria-label="next" />
-      </SectionContent>
-    </SectionWrap>
+                      <ItemImage
+                        $bgImage={makeImagePath(item.poster_path)}
+                        layoutId={`${media}${item.id}`}
+                      >
+                      </ItemImage>
+                      <ItemInfo>
+                        <Title>{media.includes("tv") ? item.name : item.title}</Title>
+                        <Overview>{item.overview}</Overview>
+                      </ItemInfo>
+                    </SectionItem>
+                ))}
+              </SectionList>
+            </AnimatePresence>
+          </SectionSlider>
+          {hasButton && (
+            <>
+              <ButtonPrev onClick={() => changeSlide("prev")} aria-label="prev" />
+              <ButtonNext onClick={() => changeSlide("next")} aria-label="next" />
+            </>
+          )}
+        </SectionContent>
+      </SectionWrap>
+
+      <AnimatePresence>
+        {modalMatch && clickedMovie ? (
+          <Modal
+            clickedMovie={clickedMovie}
+            currentLayoutId={`${media}${clickedId}`}
+            media={media}
+            closeUrl={`/search?keyword=${keyword}`}
+          />
+        ) : null}
+      </AnimatePresence>
+    </>
   )
 };
 

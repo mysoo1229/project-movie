@@ -50,6 +50,7 @@ function Search() {
               data={dataMovie?.results}
               title={<>Movie Results for <strong>'{keyword}'</strong></>}
               media="movie"
+              keyword={keyword}
             />
           )}
 
@@ -60,6 +61,7 @@ function Search() {
               data={dataTv?.results}
               title={<>TV Show Results for <strong>'{keyword}'</strong></>}
               media="tv"
+              keyword={keyword}
             />
           )}
         </>
