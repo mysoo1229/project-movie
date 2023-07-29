@@ -111,9 +111,9 @@ function Banner({ data, media }: IBanner) {
       </BannerWrap>
 
       <AnimatePresence>
-        {modalMatch && data ? (
+        {modalMatch ? (
           <Modal
-            clickedMovie={data}
+            clickedId={currentId + ""}
             currentLayoutId={`now${clickedId}`}
             media={media}
           />

@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import starGray from "../resources/star-gray.png";
 import starYellow from "../resources/star-yellow.png";
 import { useHistory } from "react-router-dom";
-import { IResults } from "../api";
+import { IDetail, getDetail } from "../api";
 import { makeImagePath } from "../api";
-import { SyntheticEvent } from "react";
+import { useQuery } from "react-query";
 
 const ModalBg = styled(motion.div)`
   z-index: 99;
@@ -21,7 +21,7 @@ const ModalBg = styled(motion.div)`
 const ModalWrap = styled(motion.div)`
   position: relative;
   width: 600px;
-  height: 70vh;
+  height: 80vh;
   margin: 0 auto;
   background: #222;
   border-radius: 16px;
@@ -80,8 +80,8 @@ const ModalCloseButton = styled.button`
 const ModalImage = styled.div`
   position: relative;
   height: 0;
-  padding-top: 56.25%;
-  background-color: #262626;
+  padding-top: 50%;
+  background-color: #333;
 
   &::after {
     content: "";
@@ -89,7 +89,7 @@ const ModalImage = styled.div`
     right: 0;
     bottom: 0;
     left: 0;
-    height: 140px;
+    height: 170px;
     background: linear-gradient(to bottom, transparent, #222);
   }
 
@@ -113,28 +113,112 @@ const ModalTitle = styled.h3`
   font-weight: bold;
 `;
 
-const ModalText = styled.div`
-  display: flex;
-  padding: 24px;
-  gap: 24px;
-  justify-content: space-between;
+const ModalOrgTitle = styled.div`
+  margin-top: 6px;
+  font-size: 16px;
+  font-weight: normal;
+  color: #ccc;
 `;
 
 const ModalInfo = styled.div`
-  font-size: 13px;
+  display: flex;
+  padding: 24px;
+  gap: 36px;
+  justify-content: space-between;
+`;
+
+const InfoText= styled.div`
+  font-size: 15px;
+`;
+
+const InfoGenre = styled.div`
+  span {
+    display: inline-flex;
+    margin-right: 8px;
+    padding: 4px 5px;
+    border: 1px solid #888;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #ccc;
+  }
 `;
 
 const InfoDetail = styled.div`
   display: flex;
-  margin-bottom: 24px;
+  margin-top: 14px;
 
   @media screen and (max-width: 640px) {
     display: block;
   }
+
+  span {
+    font-size: 13px;
+    color: #ccc;
+
+    + span {
+      display: flex;
+      align-items: center;
+
+      &::before {
+        content: "";
+        display: inline-flex;
+        width: 2px;
+        height: 2px;
+        margin: 0 6px;
+        border-radius: 2px;
+        background: #999;
+      }
+    }
+  }
+`;
+
+const InfoTagline = styled.div`
+  margin-top: 24px;
+  font-weight: bold;
+
+  i {
+    display: block;
+    height: 34px;
+    font-size: 46px;
+    color: ${props => props.theme.blue};
+  }
+
+  div {
+    font-size: 20px;
+    line-height: 1.2;
+    color: ${props => props.theme.blue};
+  }
+`;
+
+const InfoOverview = styled.div`
+  margin-top: 24px;
+  line-height: 1.5;
+`;
+
+const InfoPoster = styled.div`
+  width: 150px;
+  flex-shrink: 0;
+`;
+
+const PosterWrap = styled.div`
+  z-index: 1;
+  position: relative;
+  width: 150px;
+  height: 225px;
+  margin: -80px 0 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 5px 3px rgba(34, 34, 34, .2);
+  background: #333;
+
+  img {
+    width: 100%;
+  }
 `;
 
 const InfoRating = styled.div`
-  margin-right: 24px;
+  display: flex;
+  justify-content: center;
 
   i {
     display: inline-block;
@@ -154,7 +238,7 @@ const InfoRating = styled.div`
   span {
     display: inline-block;
     margin-left: 6px;
-    font-size: 13px;
+    font-size: 15px;
     line-height: 16px;
     color: ${props => props.theme.blue};
   }
@@ -164,56 +248,15 @@ const InfoRating = styled.div`
   }
 `;
 
-const InfoDate = styled.div`
-  strong {
-    margin-right: 6px;
-    color: ${props => props.theme.blue};
-    vertical-align: top;
-    line-height: 16px;
-
-    &::after {
-      content: ":";
-    }
-  }
-
-  span {
-    line-height: 16px;
-    color: #999;
-  }
-`;
-
-const InfoOverview = styled.div`
-  line-height: 1.5;
-`;
-
-const ModalPoster = styled.div`
-  width: 150px;
-  flex-shrink: 0;
-`;
-
-const PosterWrap = styled.div`
-  z-index: 1;
-  position: relative;
-  width: 150px;
-  height: 225px;
-  margin: -80px 0 20px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 0 5px 3px rgba(34, 34, 34, .2);
-
-  img {
-    width: 100%;
-  }
-`;
-
 interface IModal {
-  clickedMovie: IResults | undefined;
+  clickedId?: string;
   currentLayoutId: string;
   media: string;
   closeUrl?: string;
 }
 
-function Modal({ clickedMovie, currentLayoutId, media, closeUrl }: IModal) {
+function Modal({ clickedId, currentLayoutId, media, closeUrl }: IModal) {
+  const { data: detail } = useQuery<IDetail>(["detail"], () => getDetail(media, clickedId));
   const history = useHistory();
   const closeModal = () => {
     if (closeUrl) {
@@ -224,9 +267,6 @@ function Modal({ clickedMovie, currentLayoutId, media, closeUrl }: IModal) {
       history.push(`/${media}`);
     }
   }
-  const handleImgError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = "/images/blank.gif";
-  };
 
   return (
     <ModalBg
@@ -239,42 +279,66 @@ function Modal({ clickedMovie, currentLayoutId, media, closeUrl }: IModal) {
         layoutId={currentLayoutId}
       >
         <ModalCloseButton onClick={closeModal} aria-label="Close Modal" />
-        { clickedMovie && (
+        { detail && (
           <>
           <ModalImage>
-            <img
-              src={makeImagePath(clickedMovie.backdrop_path, 'original')}
-              onError={handleImgError}
-              alt="movie image"
-            />
-            <ModalTitle>{media.includes("tv") ? clickedMovie.name : clickedMovie.title}</ModalTitle>
+            {detail.backdrop_path && (
+              <img
+                src={makeImagePath(detail.backdrop_path, 'w500')}
+                alt="movie image"
+              />
+            )}
+            <ModalTitle>
+              {media.includes("tv") ? detail.name : detail.title}
+              {detail.original_language !== "en" && (
+                <ModalOrgTitle>({media.includes("tv") ? detail.original_name : detail.original_title})</ModalOrgTitle>
+              )}
+            </ModalTitle>
           </ModalImage>
-          <ModalText>
-            <ModalInfo>
+          <ModalInfo>
+            <InfoText>
+              <InfoGenre>
+                {detail.genres.slice(0, 3).map((genre) => (
+                  <span key={genre.id}>{genre.name}</span>
+                ))}
+              </InfoGenre>
               <InfoDetail>
+                {media.includes("movie") && <span>{detail.runtime} min</span>}
+                {detail.first_air_date && <span>{detail.first_air_date}</span>}
+                {detail.release_date && <span>{detail.release_date}</span>}
+                {detail.spoken_languages[0] && (
+                  <span>
+                    {detail.spoken_languages[0].english_name}
+                  </span>
+                )}
+              </InfoDetail>
+              {detail.tagline && (
+                <InfoTagline>
+                  <i>&#10077;</i>
+                  <div>{detail.tagline}</div>
+                </InfoTagline>
+              )}
+              <InfoOverview>{detail.overview}</InfoOverview>
+            </InfoText>
+            <InfoPoster>
+              <PosterWrap>
+                {detail.poster_path && (
+                  <img 
+                    src={makeImagePath(detail.poster_path, 'w300')}
+                    alt="movie poster"
+                  />
+                )}
+              </PosterWrap>
+              {detail.vote_average ? (
                 <InfoRating>
                   <i>
-                    <strong style={{width: `${clickedMovie.vote_average * 10}%`}}></strong>
+                    <strong style={{width: `${Math.round(detail.vote_average) * 10}%`}}></strong>
                   </i>
-                  <span>({Math.round(clickedMovie.vote_average * 10) / 10})</span>
+                  <span>({Math.round(detail.vote_average * 10) / 10})</span>
                 </InfoRating>
-                <InfoDate>
-                  <strong>Release Date</strong>
-                  <span>{media.includes("tv") ?  clickedMovie.first_air_date : clickedMovie.release_date}</span>
-                </InfoDate>
-              </InfoDetail>
-              <InfoOverview>{clickedMovie.overview}</InfoOverview>
-            </ModalInfo>
-            <ModalPoster>
-              <PosterWrap>
-                <img 
-                  src={makeImagePath(clickedMovie.poster_path, 'w300')}
-                  onError={handleImgError}
-                  alt="movie poster"
-                />
-              </PosterWrap>
-            </ModalPoster>
-          </ModalText>
+              ) : null}
+            </InfoPoster>
+          </ModalInfo>
           </>
         )}
       </ModalWrap>

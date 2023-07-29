@@ -272,7 +272,6 @@ function Section({ data, title, media, sectionId }: ISection) {
     history.push(`/${media}/${sectionId}/${movieId}`)
   }
   const clickedId = modalMatch?.params.movieId;
-  const clickedMovie = clickedId && data?.find((item) => item.id === +clickedId);
 
   return (
     <>
@@ -322,9 +321,9 @@ function Section({ data, title, media, sectionId }: ISection) {
       </SectionWrap>
 
       <AnimatePresence>
-        {modalMatch && clickedMovie ? (
+        {modalMatch ? (
           <Modal
-            clickedMovie={clickedMovie}
+            clickedId={clickedId}
             currentLayoutId={`${sectionId}${clickedId}`}
             media={media}
           />

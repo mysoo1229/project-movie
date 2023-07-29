@@ -276,7 +276,6 @@ function SearchSection({ data, title, media, keyword }: ISearchSection) {
   };
   const modalMatch = useRouteMatch<{id: string}>(`/search/${media}/:id`);
   const clickedId = modalMatch?.params.id;
-  const clickedMovie = clickedId && data?.find((item) => item.id === +clickedId);
 
   return (
     <>
@@ -311,7 +310,7 @@ function SearchSection({ data, title, media, keyword }: ISearchSection) {
                       onClick={() => openModal(item.id)}
                     >
                       <ItemImage
-                        $bgImage={makeImagePath(item.poster_path)}
+                        $bgImage={item.poster_path && makeImagePath(item.poster_path)}
                         layoutId={`${media}${item.id}`}
                       >
                       </ItemImage>
@@ -334,9 +333,9 @@ function SearchSection({ data, title, media, keyword }: ISearchSection) {
       </SectionWrap>
 
       <AnimatePresence>
-        {modalMatch && clickedMovie ? (
+        {modalMatch ? (
           <Modal
-            clickedMovie={clickedMovie}
+            clickedId={clickedId}
             currentLayoutId={`${media}${clickedId}`}
             media={media}
             closeUrl={`/search?keyword=${keyword}`}
