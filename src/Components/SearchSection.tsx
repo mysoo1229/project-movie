@@ -1,19 +1,18 @@
 import styled from "styled-components";
 import { IResults, makeImagePath } from "../api";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import Modal from "./Modal";
-import { debounce } from "lodash";
 
 const SectionWrap = styled.section`
-  margin: 50px 0;
+  margin: 20px 0;
 `;
 
 const SectionTitle = styled.h2`
-  margin-bottom: 16px;
+  margin-bottom: 40px;
   padding-left: 4px;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: bold;
   letter-spacing: 1px;
 
@@ -23,7 +22,7 @@ const SectionTitle = styled.h2`
 
   em {
     margin-left: 7px;
-    font-size: 18px;
+    font-size: 15px;
     font-weight: normal;
     color: #888;
   }
@@ -38,32 +37,31 @@ const SectionContent = styled.div`
   position: relative;
 `;
 
-const SectionSlider = styled.div`
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 33%;
-
-  @media screen and (max-width: 1024px) {
-    padding-bottom: 63%;
-  }
-`;
-
-const SectionList = styled(motion.ul)`
+const SectionList = styled.ul`
   display: grid;
-  position: absolute;
-  grid-template-columns: repeat(6, 16%);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 40px 12px;
   justify-content: space-between;
   width: 100%;
 
   @media screen and (max-width: 1024px) {
-    grid-template-columns: repeat(3, 32%);
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media screen and (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 16px;
   }
 `;
 
-const SectionItem = styled(motion.li)`
+const SectionItem = styled.li`
   opacity: .75;
   cursor: pointer;
+  transition: opacity .3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const ItemImage = styled(motion.div)<{ $bgImage: string }>`
@@ -113,105 +111,16 @@ const Overview = styled.div`
   -webkit-box-orient: vertical;
 `;
 
-const ButtonSlider = styled.button`
-  position: absolute;
-  top: 33%;
-  width: 46px;
-  height: 46px;
-  background: rgba(255, 255, 255, 1);
-  border-radius: 23px;
-  opacity: 0.2;
-  transition: opacity .2s ease-in-out;
-
-  &:hover {
-    opacity: .8;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    border-bottom: 2px solid #222;
-    border-left: 2px solid #222;
-  }
-
-  @media screen and (max-width: 1400px) {
-    opacity: 0.3;
-  }
-
-  @media screen and (max-width: 640px) {
-    width: 36px;
-    height: 36px;
-
-    &::after {
-      width: 8px;
-      height: 8px;
-    }
-  }
+const ButtonLoadMore = styled.button`
+  width: 100%;
+  margin-top: 40px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #999;
+  text-align: center;
+  font-size: 17px;
+  color: #ccc;
 `;
-
-const ButtonPrev = styled(ButtonSlider)`
-  left: -60px;
-
-  &::after {
-    top: 16px;
-    left: 18px;
-    transform: rotate(45deg);
-  }
-
-  @media screen and (max-width: 1420px) {
-    left: -24px;
-  }
-
-  @media screen and (max-width: 640px) {
-    left: -18px;
-
-    &::after {
-      top: 13px;
-      left: 15px;
-    }
-  }
-`;
-
-const ButtonNext = styled(ButtonSlider)`
-  right: -60px;
-
-  &::after {
-    top: 16px;
-    left: 12px;
-    transform: rotate(225deg);
-  }
-
-  @media screen and (max-width: 1420px) {
-    right: -24px;
-  }
-
-  @media screen and (max-width: 640px) {
-    right: -18px;
-
-    &::after {
-      top: 13px;
-      left: 11px;
-    }
-  }
-`;
-
-const listVariants = {
-  initial: (backward: boolean) => {
-    return {
-      x: backward ? -window.innerWidth : window.innerWidth,
-    }
-  },
-  visible: {
-    x: 0,
-  },
-  exit: (backward: boolean) => {
-    return {
-      x: backward ? window.innerWidth : -window.innerWidth,
-    }
-  },
-};
 
 interface ISearchSection {
   data: IResults[] | undefined;
@@ -221,53 +130,9 @@ interface ISearchSection {
 };
 
 function SearchSection({ data, title, media, keyword }: ISearchSection) {
-  //for responsive
-  const [ windowWidth, setWindowWidth ] = useState(window.innerWidth);
-  const handleResize = debounce(() => {
-    setWindowWidth(window.innerWidth);
-  }, 300);
-  useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    }
-  },[]);
-
-  let slideNum = 6;
-  if (windowWidth < 1024) slideNum = 3;
-
-  //for slide
-  let hasButton = true;
-  if (data && data?.length < slideNum * 2) {hasButton = false; }
-  const numResult = () => {
-    if (data) {
-      if (data.length <= slideNum) {
-        return data?.length;
-      } else {
-        return Math.floor(data.length / slideNum) * slideNum;
-      }
-    }
-  }
-  const [ slideIndex, setSlideIndex ] = useState(0);
-  const [ leaving, setLeaving ] = useState(false);
-  const [ backward, setBackward ] = useState(false);
-  const toggleLeaving = () => setLeaving((prev) => !prev);
-  const changeSlide = (direction: string) => {
-    if (!data || leaving) return;
-
-    const totalMovieNum = data?.length;
-    const maxIndex = Math.floor(totalMovieNum / slideNum) - 1;
-
-    if (direction === "prev") {
-      setBackward(true);
-      setLeaving(true);
-      setSlideIndex((prev) => prev === 0 ? maxIndex : prev - 1);
-    } else {
-      setBackward(false);
-      setLeaving(true);
-      setSlideIndex((prev) => prev === maxIndex ? 0 : prev + 1);
-    }
-  };
+  const loadCount = 12;
+  const [ listIndex, setListIndex ] = useState(1);
+  const loadMore = () => setListIndex((prev) => prev + 1);
 
   //for modal
   const history = useHistory();
@@ -282,53 +147,33 @@ function SearchSection({ data, title, media, keyword }: ISearchSection) {
       <SectionWrap>
         <SectionTitle>
           <span>{title}</span>
-          <em>({numResult() as number})</em>
+          <em>({data?.length})</em>
         </SectionTitle>
         <SectionContent>
-          <SectionSlider style={{ overflow: leaving ? 'hidden' : 'visible' }}>
-            <AnimatePresence
-                initial={false}
-                onExitComplete={toggleLeaving}
-                custom={backward}
-            >
-              <SectionList
-                key={slideIndex}
-                variants={listVariants}
-                initial="initial"
-                animate="visible"
-                exit="exit"
-                transition={{ type: "linear", duration: .5 }}
-                custom={backward}
-              >
-                {data &&
-                  data
-                  .slice(slideIndex * slideNum, slideIndex * slideNum + slideNum)
-                  .map((item) => (
-                    <SectionItem
-                      key={item.id}
-                      whileHover={{ opacity: 1 }}
-                      onClick={() => openModal(item.id)}
-                    >
-                      <ItemImage
-                        $bgImage={item.poster_path && makeImagePath(item.poster_path)}
-                        layoutId={`${media}${item.id}`}
-                      >
-                      </ItemImage>
-                      <ItemInfo>
-                        <Title>{media.includes("tv") ? item.name : item.title}</Title>
-                        <Overview>{item.overview}</Overview>
-                      </ItemInfo>
-                    </SectionItem>
-                ))}
-              </SectionList>
-            </AnimatePresence>
-          </SectionSlider>
-          {hasButton && (
-            <>
-              <ButtonPrev onClick={() => changeSlide("prev")} aria-label="prev" />
-              <ButtonNext onClick={() => changeSlide("next")} aria-label="next" />
-            </>
-          )}
+          <SectionList>
+            {data &&
+              data
+              .slice(0, loadCount * listIndex)
+              .map((item: IResults) => (
+                <SectionItem
+                  key={item.id}
+                  onClick={() => openModal(item.id)}
+                >
+                  <ItemImage
+                    $bgImage={item.poster_path && makeImagePath(item.poster_path)}
+                    layoutId={`${media}${item.id}`}
+                  >
+                  </ItemImage>
+                  <ItemInfo>
+                    <Title>{item.name ? item.name : item.title}</Title>
+                    <Overview>{item.overview}</Overview>
+                  </ItemInfo>
+                </SectionItem>
+            ))}
+          </SectionList>
+          {data?.length && listIndex < (data?.length / loadCount) ? (
+            <ButtonLoadMore onClick={loadMore}>Load More</ButtonLoadMore>
+          ) : null}
         </SectionContent>
       </SectionWrap>
 
