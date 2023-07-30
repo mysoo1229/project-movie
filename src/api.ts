@@ -39,6 +39,8 @@ export interface IDetail {
   original_language: string;
   spoken_languages: ILanguage[];
   genres: IGenres[];
+  number_of_episodes: number;
+  number_of_seasons: number;
 };
 
 export function getDB(media: string, type: string) {

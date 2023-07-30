@@ -218,6 +218,8 @@ const PosterWrap = styled.div`
 
   img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 `;
 
@@ -302,18 +304,24 @@ function Modal({ clickedId, currentLayoutId, media, closeUrl }: IModal) {
           </ModalImage>
           <ModalInfo>
             <InfoText>
-              {detail.genres && (
+              {detail.genres ? (
                 <InfoGenre>
                   {detail.genres.slice(0, 3).map((genre) => (
                     <span key={genre.id}>{genre.name}</span>
                   ))}
                 </InfoGenre>
-              )}
+              ) : null}
               <InfoDetail>
-                {detail.runtime && <span>{detail.runtime} min</span>}
-                {detail.first_air_date && <span>{detail.first_air_date}</span>}
-                {detail.release_date && <span>{detail.release_date}</span>}
-                {detail.spoken_languages[0] && (
+                {!!detail.runtime && <span>{detail.runtime} min</span>}
+                {detail.number_of_seasons &&  detail.number_of_seasons > 1 ? (
+                  <span>{detail.number_of_seasons} {detail.number_of_seasons > 1 ? 'Seasons' : 'Season'}</span>
+                ) : null}
+                {detail.number_of_seasons && detail.number_of_seasons === 1 && detail.number_of_episodes ? (
+                  <span>{detail.number_of_episodes} {detail.number_of_episodes > 1 ? 'Epsiodes' : 'Epsiode'}</span>
+                ) : null}
+                {!!detail.first_air_date && <span>{detail.first_air_date}</span>}
+                {!!detail.release_date && <span>{detail.release_date}</span>}
+                {!!detail.spoken_languages[0] && (
                   <span>
                     {detail.spoken_languages[0].english_name}
                   </span>
