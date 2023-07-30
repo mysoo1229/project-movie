@@ -21,23 +21,10 @@ const ModalBg = styled(motion.div)`
 const ModalWrap = styled(motion.div)`
   position: relative;
   width: 600px;
-  height: 80vh;
+  height: 70vh;
   margin: 0 auto;
   background: #222;
   border-radius: 16px;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent; 
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #666; 
-  }
 
   @media screen and (max-width: 640px) {
     height: 100vh;
@@ -80,8 +67,10 @@ const ModalCloseButton = styled.button`
 const ModalImage = styled.div`
   position: relative;
   height: 0;
-  padding-top: 50%;
+  padding-top: 300px;
   background-color: #333;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
 
   &::after {
     content: "";
@@ -122,13 +111,32 @@ const ModalOrgTitle = styled.div`
 
 const ModalInfo = styled.div`
   display: flex;
+  height: calc(70vh - 300px);
   padding: 24px;
-  gap: 36px;
+  gap: 26px;
   justify-content: space-between;
 `;
 
 const InfoText= styled.div`
+  overflow-y: auto;
+  padding-right: 10px;
   font-size: 15px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; 
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #666; 
+  }
+
+  @media screen and (max-width: 640px) {
+    overflow-y: visible;
+  }
 `;
 
 const InfoGenre = styled.div`
@@ -146,10 +154,6 @@ const InfoGenre = styled.div`
 const InfoDetail = styled.div`
   display: flex;
   margin-top: 14px;
-
-  @media screen and (max-width: 640px) {
-    display: block;
-  }
 
   span {
     font-size: 13px;
@@ -193,6 +197,7 @@ const InfoTagline = styled.div`
 const InfoOverview = styled.div`
   margin-top: 24px;
   line-height: 1.5;
+  overflow-y: auto;
 `;
 
 const InfoPoster = styled.div`
@@ -297,13 +302,15 @@ function Modal({ clickedId, currentLayoutId, media, closeUrl }: IModal) {
           </ModalImage>
           <ModalInfo>
             <InfoText>
-              <InfoGenre>
-                {detail.genres.slice(0, 3).map((genre) => (
-                  <span key={genre.id}>{genre.name}</span>
-                ))}
-              </InfoGenre>
+              {detail.genres && (
+                <InfoGenre>
+                  {detail.genres.slice(0, 3).map((genre) => (
+                    <span key={genre.id}>{genre.name}</span>
+                  ))}
+                </InfoGenre>
+              )}
               <InfoDetail>
-                {media.includes("movie") && <span>{detail.runtime} min</span>}
+                {detail.runtime && <span>{detail.runtime} min</span>}
                 {detail.first_air_date && <span>{detail.first_air_date}</span>}
                 {detail.release_date && <span>{detail.release_date}</span>}
                 {detail.spoken_languages[0] && (
