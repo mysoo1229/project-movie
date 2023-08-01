@@ -196,6 +196,7 @@ const InfoTagline = styled.div`
 
 const InfoOverview = styled.div`
   margin-top: 24px;
+  padding-bottom: 10px;
   line-height: 1.5;
   overflow-y: auto;
 `;
@@ -314,7 +315,7 @@ function Modal({ clickedId, currentLayoutId, media, closeUrl }: IModal) {
               <InfoDetail>
                 {!!detail.runtime && <span>{detail.runtime} min</span>}
                 {detail.number_of_seasons &&  detail.number_of_seasons > 1 ? (
-                  <span>{detail.number_of_seasons} {detail.number_of_seasons > 1 ? 'Seasons' : 'Season'}</span>
+                  <span>{detail.number_of_seasons} 'Seasons'</span>
                 ) : null}
                 {detail.number_of_seasons && detail.number_of_seasons === 1 && detail.number_of_episodes ? (
                   <span>{detail.number_of_episodes} {detail.number_of_episodes > 1 ? 'Epsiodes' : 'Epsiode'}</span>
