@@ -140,6 +140,8 @@ const InfoText= styled.div`
 `;
 
 const InfoGenre = styled.div`
+  margin-bottom: 14px;
+
   span {
     display: inline-flex;
     margin-right: 8px;
@@ -153,7 +155,6 @@ const InfoGenre = styled.div`
 
 const InfoDetail = styled.div`
   display: flex;
-  margin-top: 14px;
 
   span {
     font-size: 13px;
@@ -305,7 +306,7 @@ function Modal({ clickedId, currentLayoutId, media, closeUrl }: IModal) {
           </ModalImage>
           <ModalInfo>
             <InfoText>
-              {detail.genres ? (
+              {detail.genres.length > 0 ? (
                 <InfoGenre>
                   {detail.genres.slice(0, 3).map((genre) => (
                     <span key={genre.id}>{genre.name}</span>
@@ -315,7 +316,7 @@ function Modal({ clickedId, currentLayoutId, media, closeUrl }: IModal) {
               <InfoDetail>
                 {!!detail.runtime && <span>{detail.runtime} min</span>}
                 {detail.number_of_seasons &&  detail.number_of_seasons > 1 ? (
-                  <span>{detail.number_of_seasons} 'Seasons'</span>
+                  <span>{detail.number_of_seasons} Seasons</span>
                 ) : null}
                 {detail.number_of_seasons && detail.number_of_seasons === 1 && detail.number_of_episodes ? (
                   <span>{detail.number_of_episodes} {detail.number_of_episodes > 1 ? 'Epsiodes' : 'Epsiode'}</span>
