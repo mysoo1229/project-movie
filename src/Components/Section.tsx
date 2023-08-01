@@ -258,6 +258,7 @@ function Section({ data, title, media, sectionId }: ISection) {
       setBackward(true);
       setLeaving(true);
       setSlideIndex((prev) => prev === 0 ? maxIndex : prev - 1);
+      console.log(slideIndex);
     } else {
       setBackward(false);
       setLeaving(true);

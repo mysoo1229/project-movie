@@ -111,29 +111,16 @@ const Overview = styled.div`
   -webkit-box-orient: vertical;
 `;
 
-const ButtonLoadMore = styled.button`
-  width: 100%;
-  margin-top: 40px;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #999;
-  text-align: center;
-  font-size: 17px;
-  color: #ccc;
-`;
-
 interface ISearchSection {
   data: IResults[] | undefined;
   title?: any;
   media: string;
   keyword: string;
+  listIndex: number;
+  loadCount: number;
 };
 
-function SearchSection({ data, title, media, keyword }: ISearchSection) {
-  const loadCount = 12;
-  const [ listIndex, setListIndex ] = useState(1);
-  const loadMore = () => setListIndex((prev) => prev + 1);
-
+function SearchSection({ data, title, media, keyword, listIndex, loadCount }: ISearchSection) {
   //for modal
   const history = useHistory();
   const openModal = (id: number) => {
@@ -171,9 +158,6 @@ function SearchSection({ data, title, media, keyword }: ISearchSection) {
                 </SectionItem>
             ))}
           </SectionList>
-          {data?.length && listIndex < (data?.length / loadCount) ? (
-            <ButtonLoadMore onClick={loadMore}>Load More</ButtonLoadMore>
-          ) : null}
         </SectionContent>
       </SectionWrap>
 

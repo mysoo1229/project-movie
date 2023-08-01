@@ -32,6 +32,17 @@ const TabItem = styled.button<{$isActive: boolean}>`
   color: ${(props) => props.$isActive === true ? '#222' : '#ddd'};
 `;
 
+const ButtonLoadMore = styled.button`
+  width: 100%;
+  margin-top: 30px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #999;
+  text-align: center;
+  font-size: 17px;
+  color: #ccc;
+`;
+
 function Search() {
   const location = useLocation();
   const keyword = new URLSearchParams(location.search).get("keyword");
@@ -50,6 +61,13 @@ function Search() {
   const noResultMovie = dataMovie?.results.length === 0;
   const noResultTv = dataTv?.results.length === 0;
   const [activeTab, setActivTab] = useState(0);
+
+  //for Load More
+  const loadCount = 12;
+  const [ movieIndex, setMovieIndex ] = useState(1);
+  const [ tvIndex, setTvIndex ] = useState(1);
+  const loadMovieMore = () => setMovieIndex((prev) => prev + 1);
+  const loadTvMore = () => setTvIndex((prev) => prev + 1);
 
   return (
     <>
@@ -73,23 +91,37 @@ function Search() {
             noResultMovie ? (
               <NoResult>Sorry, there is no movie matching '{keyword}'.</NoResult>
             ) : (
-              <SearchSection
-                data={dataMovie?.results}
-                title={<>Movie Results for <strong>'{keyword}'</strong></>}
-                media="movie"
-                keyword={keyword}
-              />
+              <>
+                <SearchSection
+                  data={dataMovie?.results}
+                  title={<>Movie Results for <strong>'{keyword}'</strong></>}
+                  media="movie"
+                  keyword={keyword}
+                  listIndex={movieIndex}
+                  loadCount={12}
+                />
+                {dataMovie?.results.length && movieIndex < (dataMovie?.results.length / loadCount) ? (
+                  <ButtonLoadMore onClick={loadMovieMore}>Load More</ButtonLoadMore>
+                ) : null}
+              </>
             )
           ) : (
             noResultTv ? (
               <NoResult>Sorry, there is no TV Show matching '{keyword}'.</NoResult>
             ) : (
-              <SearchSection
-                data={dataTv?.results}
-                title={<>TV Show Results for <strong>'{keyword}'</strong></>}
-                media="tv"
-                keyword={keyword}
-              />
+              <>
+                <SearchSection
+                  data={dataTv?.results}
+                  title={<>TV Show Results for <strong>'{keyword}'</strong></>}
+                  media="tv"
+                  keyword={keyword}
+                  listIndex={tvIndex}
+                  loadCount={12}
+                />
+                {dataTv?.results.length && tvIndex < (dataTv?.results.length / loadCount) ? (
+                  <ButtonLoadMore onClick={loadTvMore}>Load More</ButtonLoadMore>
+                ) : null}
+              </>
             )
           )}
         </>
